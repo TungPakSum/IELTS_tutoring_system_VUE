@@ -12,7 +12,7 @@
             custom
           >
             <img
-              src="./assets/icon.png"
+              src=""
               width="148"
               height="60"
               @click="navigate"
@@ -24,7 +24,7 @@
           class="navbar-brand"
         >
           <img
-            src="./assets/icon.png"
+            src=""
             width="148"
             height="60"
           >
@@ -51,30 +51,20 @@
             v-if="login"
             class="navbar-nav me-auto mb-2 mb-lg-0"
           >
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="/events"
-              >賣旗日</a>
-            </li>
+            
             <li class="nav-item">
               <a
                 class="nav-link"
                 href="/admin"
-              >CUBC用戶</a>
+              >Admin用戶</a>
             </li>
             <li class="nav-item">
               <a
                 class="nav-link"
                 href="/stationManager"
-              >旗長用戶</a>
+              >學生</a>
             </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="/scan"
-              >掃描旗袋二維碼</a>
-            </li>
+            
           </ul>
 
           <!-- <ul

@@ -3,7 +3,7 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-sm-6">
-          <img src="./../assets/icon.png" class="img-fluid" style="margin-bottom: 20px;">
+          <img src="" class="img-fluid" style="margin-bottom: 20px;">
           <form @submit.prevent="submit">
             <legend>登入</legend>
             <div class="mb-3">
