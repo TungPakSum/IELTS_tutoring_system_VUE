@@ -58,8 +58,8 @@
         <p v-if="item.role === 'admin'">
           管理員
         </p>
-        <p v-if="item.role === 'stationManager'">
-          旗長
+        <p v-if="item.role === 'student'">
+          學生
         </p>
       </div>
     </div>

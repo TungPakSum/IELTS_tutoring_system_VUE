@@ -148,10 +148,10 @@ export default {
       ];
 
       let userDict = [{
-        name: '用戶',
+        name: 'Student users',
         buttons: [
           {
-            name: '建立',
+            name: 'Create new user',
             next: 'create'
           }
         ]
@@ -162,7 +162,7 @@ export default {
 
       let elements = router.path.split('/')
       let length = elements.length - 1;
-      if (elements[1] == 'admin' || elements[1] == 'stationManager') {
+      if (elements[1] == 'admin' || elements[1] == 'student') {
         dict = userDict;
       }
 

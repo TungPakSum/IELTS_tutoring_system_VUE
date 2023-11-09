@@ -59,7 +59,7 @@ export default {
 
         if (user.role === 'admin') {
           window.location.assign('/events')
-        } else if (user.role === 'stationManager') {
+        } else if (user.role === 'student') {
           const data = await fetchStation();
           let eid = "";
           for (let i = 0; i < data.itemsWithoutPages.length; i++) {

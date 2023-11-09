@@ -56,7 +56,7 @@ const routes = [
     ],
   },
   {
-    path: "/stationManager",
+    path: "/student",
     children: [
       {
         path: "",

@@ -73,8 +73,8 @@ export default {
           name: "管理員",
         },
         {
-          roles: "stationManager",
-          name: "旗長",
+          roles: "student",
+          name: "學生",
         },
       ];
     });

@@ -56,13 +56,13 @@
               <a
                 class="nav-link"
                 href="/admin"
-              >Admin用戶</a>
+              >Admin</a>
             </li>
             <li class="nav-item">
               <a
                 class="nav-link"
-                href="/stationManager"
-              >學生</a>
+                href="/student"
+              >Student</a>
             </li>
             
           </ul>
