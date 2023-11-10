@@ -66,7 +66,7 @@ export default {
             eid = data.itemsWithoutPages[i].eid;
           }
           console.log(eid);
-          window.location.assign(`/events/${eid}/stations/`)
+          window.location.assign(`/events`)
         }
       }
       else {

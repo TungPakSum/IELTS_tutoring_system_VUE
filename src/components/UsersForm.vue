@@ -45,6 +45,26 @@
                 </button>
               </div>
             </div>
+
+              <div class="row justify-content-between text-left">
+                <div class="form-group col-sm-6 flex-column d-flex">
+                  <label for="existingPassword" class="form-label">現有密碼</label>
+                  <input v-model="existingPassword" type="password" class="form-control" required="required" v-if="showExistingPassword">
+                </div>
+                <div class="form-group col-sm-6 flex-column d-flex">
+                  <label for="newPassword" class="form-label">新密碼</label>
+                  <input v-model="newPassword" type="password" class="form-control" required="required" v-if="showNewPassword">
+                </div>
+              </div>
+              <div class="row justify-content-end">
+                <div class="form-group col-sm-6">
+                  <button type="button" class="btn btn-primary" @click="showPasswordFields">更改密碼</button>
+                  <button type="submit" class="btn btn-primary" :disabled="!validatePassword">儲存</button>
+                  <button type="button" class="btn btn-danger" @click="deleteUsers(item._id)">刪除</button>
+                  <button type="button" class="btn btn-warning" @click="resetPassword">重設密碼</button>
+                </div>                
+              </div>
+
           </form>
         </div>
       </div>
@@ -53,9 +73,10 @@
 </template>
 
 <script>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, toRefs } from "vue";
 import { useRoute } from "vue-router";
 import decode from "jwt-decode";
+import bcrypt from "bcryptjs";
 
 export default {
   name: "UsersForm",
@@ -65,6 +86,15 @@ export default {
     const path = ref("");
     const item = ref({});
     const router = useRoute();
+    const showExistingPassword = ref(false);
+    const showNewPassword = ref(false);
+    const passwords = ref({
+      existing: "",
+      new: "",
+    });
+
+    
+
 
     const roles = computed(() => {
       return [
@@ -120,9 +150,10 @@ export default {
       });
       if (response.ok) {
         let data = await response.json();
-        delete data.items.password;
+        
         item.value = data.items;
         selected.value = item.value.role;
+        showExistingPassword = item.value.password;
         console.log(data.items);
         console.log(item.value);
       } else {
@@ -136,6 +167,11 @@ export default {
           alert(response.statusText);
       }
     };
+
+    const validatePassword = computed(() => {
+      // Use bcrypt to compare the hashed existing password with the stored hashed password
+      return bcrypt.compareSync(passwords.existing, item.value.password);
+    });
 
     const getPath = function () {
       let elements = router.path.split("/");
@@ -202,12 +238,27 @@ export default {
       }
     };
 
+    const showPasswordFields = () => {
+      showExistingPassword.value = true;
+      showNewPassword.value = true;
+    };
+
+    const resetPassword = () => {
+      // Reset password logic, for example, change the password to '1234'
+      const hashedPassword = bcrypt.hashSync("1234", bcrypt.genSaltSync(10));
+      item.value.password = hashedPassword;
+      // ... your existing logic to save the password ...
+    };
+
     return {
       item,
       roles,
       updateForm,
       deleteUsers,
       submit,
+      validatePassword,
+      showPasswordFields,
+      
     };
   },
 };
