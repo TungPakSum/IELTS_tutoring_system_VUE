@@ -2,69 +2,60 @@
   <div class="container-fluid px-1 py-5 mx-auto background">
     <div class="row d-flex justify-content-center">
       <div class="col-xl-7 col-lg-8 col-md-9 col-11 text-center">
-        <h3>用戶資料</h3>
-        <!-- </div> -->
+        <h3>User Profile</h3>
         <div class="card">
           <form class="form-card" @submit.prevent="submit">
             <div class="row justify-content-between text-left">
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label for="username" class="form-label">用戶名稱</label>
+                <label for="username" class="form-label">User Name</label>
                 <input v-model="item.username" type="text" class="form-control" required="required">
               </div>
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label for="email" class="form-label">電郵</label>
+                <label for="email" class="form-label">Email Address</label>
                 <input v-model="item.email" type="email" class="form-control" required="required">
               </div>
             </div>
-            <div class="row justify-content-between text-left">
+            <div class="row justify-content-between text-center">
+              
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label for="password" class="form-label">密碼</label>
-                <input v-model="item.password" type="password" class="form-control" required="required">
-              </div>
-              <div class="form-group col-sm-6 flex-column d-flex">
-                <label for="form-select" class="form-label">身分</label>
+                <label for="form-select" class="form-label">Role</label>
                 <select v-model="item.role" class="form-select" aria-label="Default select example">
-                  <option disabled value="">
-                    請選擇身份
-                  </option>
+                  <option disabled value="">Choose a role</option>
                   <option v-for="role in roles" :key="role" :value="role.roles" :selected="role.name === selected">
                     {{ role.name }}
                   </option>
                 </select>
               </div>
-            </div>
-            <!-- <<<<<<< HEAD -->
 
-            <div class="row justify-content-end">
-              <div class="form-group col-sm-6">
-                <button type="submit" class="btn btn-primary">
-                  儲存
-                </button>
-                <button type="button" class="btn btn-danger" @click="deleteUsers(item._id)">
-                  刪除
-                </button>
+              
+              <div class="form-group col-sm-6 ">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-danger" @click="deleteUsers(item._id)">Delete User</button>
+                <button type="button" class="btn btn-secondary" @click="changePasswordForm = true" v-if="!changePasswordForm && updateForm">Change Password</button>
               </div>
-            </div>
+            
 
+            </div>
+            
+            <div v-if="changePasswordForm">
               <div class="row justify-content-between text-left">
                 <div class="form-group col-sm-6 flex-column d-flex">
-                  <label for="existingPassword" class="form-label">現有密碼</label>
-                  <input v-model="existingPassword" type="password" class="form-control" required="required" v-if="showExistingPassword">
+                  <label for="existingPassword" class="form-label">Current Password</label>
+                  <input v-model="existingPassword" type="password" class="form-control" required="required">
                 </div>
                 <div class="form-group col-sm-6 flex-column d-flex">
-                  <label for="newPassword" class="form-label">新密碼</label>
-                  <input v-model="newPassword" type="password" class="form-control" required="required" v-if="showNewPassword">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input v-model="newPassword" type="password" class="form-control" required="required">
                 </div>
               </div>
               <div class="row justify-content-end">
                 <div class="form-group col-sm-6">
-                  <button type="button" class="btn btn-primary" @click="showPasswordFields">更改密碼</button>
-                  <button type="submit" class="btn btn-primary" :disabled="!validatePassword">儲存</button>
-                  <button type="button" class="btn btn-danger" @click="deleteUsers(item._id)">刪除</button>
-                  <button type="button" class="btn btn-warning" @click="resetPassword">重設密碼</button>
-                </div>                
+                  <button type="button" class="btn btn-primary" @click="changePassword">Save</button>
+                  <button type="button" class="btn btn-secondary" @click="changePasswordForm = false">Cancel</button>
+                  <button type="button" class="btn btn-primary" @click="resetPassword">Reset Password</button>
+                </div>
               </div>
-
+            </div>
           </form>
         </div>
       </div>
@@ -86,12 +77,15 @@ export default {
     const path = ref("");
     const item = ref({});
     const router = useRoute();
-    const showExistingPassword = ref(false);
-    const showNewPassword = ref(false);
-    const passwords = ref({
-      existing: "",
-      new: "",
-    });
+
+    const resetPasswordForm = ref(false);
+    const changePasswordForm = ref(false);
+    const existingPassword = ref();
+    const newPassword = ref();
+    const confirmPassword = ref();
+    const resetPasswordError = ref("");
+    const changePasswordError = ref("");
+    
 
     
 
@@ -100,11 +94,11 @@ export default {
       return [
         {
           roles: "admin",
-          name: "管理員",
+          name: "administrator",
         },
         {
           roles: "student",
-          name: "學生",
+          name: "Student",
         },
       ];
     });
@@ -153,7 +147,6 @@ export default {
         
         item.value = data.items;
         selected.value = item.value.role;
-        showExistingPassword = item.value.password;
         console.log(data.items);
         console.log(item.value);
       } else {
@@ -168,10 +161,7 @@ export default {
       }
     };
 
-    const validatePassword = computed(() => {
-      // Use bcrypt to compare the hashed existing password with the stored hashed password
-      return bcrypt.compareSync(passwords.existing, item.value.password);
-    });
+   
 
     const getPath = function () {
       let elements = router.path.split("/");
@@ -183,26 +173,32 @@ export default {
 
     // Delete function
     const deleteUsers = async function (id) {
-      const response = await fetch(`/api/users/get/${id}/confirm/delete`, {
-        method: "delete",
-        body: JSON.stringify(item.value),
-        headers: {
-          "x-access-token": `${localStorage.getItem("token")}`
+      if (confirm("Are you sure to delete this user?")) {
+        const response = await fetch(`/api/users/get/${id}/confirm/delete`, {
+          method: "delete",
+          body: JSON.stringify(item.value),
+          headers: {
+            "x-access-token": `${localStorage.getItem("token")}`
+          }
+        });
+        if (response.ok) {
+          alert("Users Deleted");
+          window.location.replace(path.value);
+        } else {
+          alert(response.statusText);
         }
-      });
-      if (response.ok) {
-        alert("Users deleted");
-        location.assign("/users");
-      } else {
-        alert(response.statusText);
+      } else { 
+        return
       }
-    };
+    }
 
     // Update function
     const submit = async function (event) {
       event.preventDefault();
       console.log(updateForm.value);
       if (!updateForm.value) {
+
+        item.value.password = "default"
         const response = await fetch(`/api/users/create`, {
           method: "post",
           headers: {
@@ -221,10 +217,11 @@ export default {
         console.log(item.value);
         let id = item.value._id;
         delete item.value._id;
-        const response = await fetch(`/api/users/update/${id}`, {
+        const response = await fetch(`/api/users/update/${router.params.uid}`, {
           method: "put",
           headers: {
             "Content-Type": "application/json",
+            "x-access-token": `${localStorage.getItem("token")}`
           },
           body: JSON.stringify(item.value),
         });
@@ -238,17 +235,80 @@ export default {
       }
     };
 
-    const showPasswordFields = () => {
-      showExistingPassword.value = true;
-      showNewPassword.value = true;
-    };
+//new function
+  const resetPassword = async function () {
 
-    const resetPassword = () => {
-      // Reset password logic, for example, change the password to '1234'
-      const hashedPassword = bcrypt.hashSync("1234", bcrypt.genSaltSync(10));
-      item.value.password = hashedPassword;
-      // ... your existing logic to save the password ...
-    };
+    if (confirm("Are you sure you want to reset the password?"))
+    {
+      item.value.password = await bcrypt.hash("default",10)
+      let id = item.value._id;
+      delete item.value._id;
+      console.log(item.value)
+      const response = await fetch(`/api/users/update/${router.params.uid}`, {
+        method: "put",
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(item.value),
+      });
+
+      item.value._id = id
+
+      if (response.ok) {
+        alert("Password reset to default");
+        resetPasswordForm.value = false;
+      } else {
+        alert(response.statusText);
+      }
+    } else {
+      return
+    }
+};
+
+    const changePassword = async function () {
+
+      console.log(existingPassword)
+      if (!existingPassword.value || !newPassword.value) { 
+        alert("Please fill in the password")
+        return
+      }
+      // Verify existing password
+      const isMatch = comparePasswords(existingPassword.value);
+      if (!isMatch) {
+        alert("現有密碼不正確");
+        return;
+      } else { 
+        item.value.password = await bcrypt.hash(newPassword.value, 10);
+      }
+
+      let id = item.value._id;
+      delete item.value._id;
+      const response = await fetch(`/api/users/update/${router.params.uid}`, {
+        method: "put",
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(item.value),
+      });
+
+      item.value._id = id
+
+      if (response.ok) {
+        alert("密碼已更改");
+        changePasswordForm.value = false;
+        existingPassword.value = '';
+        newPassword.value = '';
+      } else {
+        alert(response.statusText);
+      }
+  };
+
+const comparePasswords = function(password) {
+  return bcrypt.compareSync(password, item.value.password);
+};
+    
 
     return {
       item,
@@ -256,8 +316,17 @@ export default {
       updateForm,
       deleteUsers,
       submit,
-      validatePassword,
-      showPasswordFields,
+
+      resetPasswordForm,
+      changePasswordForm,
+      existingPassword,
+      newPassword,
+      confirmPassword,
+      resetPasswordError,
+      changePasswordError,
+      resetPassword,
+      changePassword,
+      comparePasswords,
       
     };
   },

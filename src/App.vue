@@ -1,6 +1,6 @@
 <template>
   <div id="vue">
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-3">
       <div class="container-sm">
         <a
           v-if="!login"
@@ -23,11 +23,7 @@
           v-else
           class="navbar-brand"
         >
-          <img
-            src=""
-            width="148"
-            height="60"
-          >
+          
         </a>
         <button
           v-if="login"
@@ -84,7 +80,7 @@
                 <li class="nav-item">
                   <a
                     class="nav-link"
-                  >{{ user.username }}</a>
+                  >Sign in as {{ user.username }}</a>
                 </li>
               </ul>
             </div>
@@ -128,8 +124,10 @@
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
-// import JwtDecode from "jwt-decode";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import JwtDecode from "jwt-decode";
+
 
 export default{
     name: "App",
@@ -137,19 +135,20 @@ export default{
         const user = ref({});
         const login = ref(false);
         let visible = ref(false);
+        const router = useRoute();
 
         onMounted(function () {
             fetchPage();
         });
 
-        const fetchPage = async function () {
-            if (localStorage.getItem("token") !== null) 
-                login.value = true;
-            //     // user.value = JSON.stringify(decoded)
-            //     user.value = JwtDecode(localStorage.getItem("token"));
-            //     console.log(user.value);
-            // }
+      const fetchPage = async function () {
+        if (localStorage.getItem("token") !== null) {
+          const decodedToken = JwtDecode(localStorage.getItem("token"))
+          user.value = decodedToken ;
+          console.log(user.value);
+          login.value = true;
         };
+      }
 
         const logout = function () {
             localStorage.removeItem("token");
@@ -161,7 +160,7 @@ export default{
             login,
             logout
         };
-    },
+    }
 };
 </script>
 <style scoped>

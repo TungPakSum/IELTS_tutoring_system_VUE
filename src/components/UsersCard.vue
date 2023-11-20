@@ -42,8 +42,8 @@
   <!-- </div> -->
   <!-- </div> -->
   <!-- </div> -->
-  <div class="row card-group">
-    <div v-for="item in resultItems" :key="item" class="card testimonial-card col-sm-5" style="padding: 0px">
+  <div class="row">
+    <div v-for="item in resultItems" :key="item" class="card testimonial-card col-sm-2 flex " style="padding: 0px">
       <div class="card-up aqua-gradient" />
       <div class="avatar mx-auto white">
         <router-link v-slot="{ navigate }" :to="`/${item.role}/${item._id}`" custom>
@@ -56,10 +56,10 @@
         </h4>
         <hr>
         <p v-if="item.role === 'admin'">
-          管理員
+          Admin Account
         </p>
         <p v-if="item.role === 'student'">
-          學生
+          Student Account
         </p>
       </div>
     </div>
