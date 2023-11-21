@@ -1,7 +1,7 @@
 // @ts-ignore
 import { createRouter, createWebHistory } from "vue-router";
-import EventForm from "@/views/EventFormView.vue";
-import EventsView from "@/views/EventsView.vue";
+import ChatForm from "@/views/ChatFormView.vue";
+import ChatsView from "@/views/ChatsView.vue";
 import StationForm from "@/views/StationsFormView.vue";
 import StationsView from "@/views/StationsView.vue";
 import UsersFormAdmin from "@/views/UsersFormAdminView.vue";
@@ -15,6 +15,7 @@ import FlagbagForm from "@/views/FlagbagsFormView.vue";
 import loginView from "@/views/LoginView.vue";
 import StationsFormView from "@/views/StationsFormView.vue";
 import ScanView from "@/views/ScanView.vue";
+import RegView from "@/views/RegView.vue";
 
 const routes = [
   // Home
@@ -69,23 +70,34 @@ const routes = [
       },
     ],
   },
-  // Events
+
   {
-    path: "/events",
+    path: "/reg",
     children: [
       {
         path: "",
-        component: EventsView,
+        component: RegView,
+      },
+    ],
+  },
+
+  // Events
+  {
+    path: "/chat",
+    children: [
+      {
+        path: "",
+        component: ChatsView,
       },
       {
         path: "create",
-        name: "Event Creation",
-        component: EventForm,
+        name: "Chat Creation",
+        component: ChatForm,
       },
       {
-        path: ":eid",
-        name: "Event Details",
-        component: EventForm,
+        path: ":uid",
+        name: "Chat Details",
+        component: ChatForm,
       },
     ],
   },
@@ -109,7 +121,7 @@ const routes = [
       {
         path: "update",
         name: "Station Update",
-        component: EventForm,
+        component: ChatForm,
       },
     ],
   },

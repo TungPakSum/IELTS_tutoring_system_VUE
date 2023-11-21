@@ -1,19 +1,19 @@
 <template>
   <div>
     <BreadcrumbUI />
-    <EventsCard />
+    <ChatsCard />
   </div>
 </template>
 
 <script>
 import BreadcrumbUI from '@/components/BreadcrumbUI.vue'
-import EventsCard from '@/components/EventsCard.vue'
+import ChatsCard from '@/components/ChatsCard.vue'
 
 export default ({
-  name: 'EventView',
+  name: 'ChatView',
   components: {
     BreadcrumbUI,
-    EventsCard
+    ChatsCard
   },
   methods: {
     onScan(decodedText, decodedResult) {

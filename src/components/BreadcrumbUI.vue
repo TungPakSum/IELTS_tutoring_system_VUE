@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between py-4">
     <div class="d-flex align-items-center">
       <nav
         aria-label="breadcrumb"
@@ -94,13 +94,8 @@ export default {
       let items = [];
 
       let dict = [{
-        name: '賣旗日',
-        buttons: [
-          {
-            name: '建立',
-            next: 'create'
-          }
-        ]
+        name: '',
+        
       },
       {
         name: '活動詳情'

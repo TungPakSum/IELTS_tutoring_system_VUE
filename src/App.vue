@@ -48,13 +48,13 @@
             class="navbar-nav me-auto mb-2 mb-lg-0"
           >
             
-            <li class="nav-item">
+            <li class="navbar-brand">
               <a
                 class="nav-link"
                 href="/admin"
               >Admin</a>
             </li>
-            <li class="nav-item">
+            <li class="navbar-brand">
               <a
                 class="nav-link"
                 href="/student"
@@ -77,8 +77,8 @@
           <form class="d-flex align-items-center">
             <div>
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                  <a
+                <li class="navbar-brand">
+                  <a  v-if="login"
                     class="nav-link"
                   >Sign in as {{ user.username }}</a>
                 </li>

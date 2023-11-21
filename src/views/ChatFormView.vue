@@ -1,18 +1,18 @@
 <template>
   <div>
     <BreadcrumbUI />
-    <EventsForm />
+    <ChatsForm />
   </div>
 </template>
 
 <script>
-import EventsForm from '@/components/EventsForm.vue'
+import ChatsForm from '@/components/ChatsForm.vue'
 import BreadcrumbUI from '@/components/BreadcrumbUI.vue'
 
 export default ({
-  name: 'EventsFormView',
+  name: 'ChatsFormView',
   components: {
-    EventsForm,
+    ChatsForm,
     BreadcrumbUI
   }
 })

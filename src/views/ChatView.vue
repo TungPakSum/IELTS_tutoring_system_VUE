@@ -5,12 +5,12 @@
 
 <script>
 import Breadcrumb from '@/components/BreadcrumbUI.vue'
-import EventForm from '@/components/EventsForm.vue'
+import ChatForm from '@/components/ChatsForm.vue'
 
 export default ({
-    name: 'EventView',
+    name: 'ChatView',
     components: {
-        EventForm,
+        ChatForm,
         Breadcrumb
     }
 })
