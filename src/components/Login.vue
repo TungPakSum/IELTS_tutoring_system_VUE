@@ -15,7 +15,7 @@
               <input id="password" v-model="credential.password" type="password" class="form-control"
                 placeholder="Password">
             </div>
-            <button type="submit" class="btn btn-primary btn-lg" @click="login">
+            <button type="submit" class="btn btn-primary" @click="login">
               Login
             </button>
 
@@ -71,7 +71,7 @@ export default {
             eid = data.itemsWithoutPages[i].eid;
           }
           console.log(eid);
-          window.location.assign(`/events`)
+          window.location.assign(`/chat`)
         }
       }
       else {
