@@ -1,4 +1,4 @@
-# cubc-offline-frontend
+# tutor
 
 ## Project setup
 ```
