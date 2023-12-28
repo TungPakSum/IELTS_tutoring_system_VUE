@@ -2,29 +2,12 @@
   <div id="vue">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-3">
       <div class="container-sm">
-        <a
-          v-if="!login"
-          class="navbar-brand"
-        >
-          <router-link
-            v-slot="{ navigate }"
-            :to="`/login`"
-            custom
-          >
-            <img
-              src=""
-              width="148"
-              height="60"
-              @click="navigate"
-            >
+        <a v-if="!login" class="navbar-brand">
+          <router-link v-slot="{ navigate }" :to="`/login`" custom>
+            <img src="" width="148" height="60" @click="navigate" />
           </router-link>
         </a>
-        <a
-          v-else
-          class="navbar-brand"
-        >
-          
-        </a>
+        <a v-else class="navbar-brand"> </a>
         <button
           v-if="login"
           aria-controls="navbarSupportedContent"
@@ -44,23 +27,15 @@
           class="navbar-collapse"
         >
           <ul
-            v-if="login"
+            v-if="login && !isStudent"
             class="navbar-nav me-auto mb-2 mb-lg-0"
           >
-            
             <li class="navbar-brand">
-              <a
-                class="nav-link"
-                href="/admin"
-              >Admin</a>
+              <a class="nav-link" href="/admin">Admin</a>
             </li>
             <li class="navbar-brand">
-              <a
-                class="nav-link"
-                href="/student"
-              >Student</a>
+              <a class="nav-link" href="/student">Student</a>
             </li>
-            
           </ul>
 
           <!-- <ul
@@ -78,9 +53,9 @@
             <div>
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="navbar-brand">
-                  <a  v-if="login"
-                    class="nav-link"
-                  >Sign in as {{ user.username }}</a>
+                  <a v-if="login" class="nav-link"
+                    >Sign in as {{ user.username }}</a
+                  >
                 </li>
               </ul>
             </div>
@@ -89,7 +64,7 @@
                 v-if="login"
                 type="submit"
                 class="bi bi-box-arrow-in-left"
-                style="font-size: 33px;"
+                style="font-size: 33px"
                 @click="logout"
               />
             </div>
@@ -128,44 +103,60 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import JwtDecode from "jwt-decode";
 
+export default {
+  name: "App",
+  setup: function () {
+    const user = ref({});
+    const login = ref(false);
+    const isStudent = ref(false);
+    let visible = ref(false);
+    const router = useRoute();
 
-export default{
-    name: "App",
-    setup: function () {
-        const user = ref({});
-        const login = ref(false);
-        let visible = ref(false);
-        const router = useRoute();
+    onMounted(function () {
+      fetchPage();
+    });
 
-        onMounted(function () {
-            fetchPage();
-        });
+    const fetchPage = async function () {
+      if (localStorage.getItem("token") !== null) {
+        const decodedToken = JwtDecode(localStorage.getItem("token"));
+        user.value = decodedToken;
 
-      const fetchPage = async function () {
-        if (localStorage.getItem("token") !== null) {
-          const decodedToken = JwtDecode(localStorage.getItem("token"))
-          user.value = decodedToken ;
-          console.log(user.value);
-          login.value = true;
-        };
-      }
-
-        const logout = function () {
-            localStorage.removeItem("token");
-            location.assign("/login");
+        if (user.value.role == "student") {
+          isStudent.value = true;
         }
-        return {
-            user,
-            visible,
-            login,
-            logout
-        };
-    }
+
+        console.log(user.value);
+        console.log(user.value.role);
+        console.log(isStudent.value);
+        login.value = true;
+      }
+    };
+
+    const logout = function () {
+      localStorage.removeItem("token");
+      location.assign("/login");
+      login.value = false;
+    };
+    return {
+      user,
+      visible,
+      login,
+      logout,
+    };
+  },
 };
 </script>
 <style scoped>
 .bi-box-arrow-in-left {
-    padding-left: 5px;
+  padding-left: 5px;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
 }
 
 /**/

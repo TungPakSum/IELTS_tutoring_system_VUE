@@ -17,6 +17,7 @@
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "core-js": "^3.8.3",
+    "cors": "^2.8.5",
     "html5-qrcode": "^2.3.7",
     "jwt-decode": "^3.1.2",
     "openai": "^4.0.0",
@@ -24,6 +25,7 @@
     "vue": "^3.2.13",
     "vue-jwt-decode": "^0.1.0",
     "vue-router": "^4.1.6",
+    "vue-textarea-autosize": "^1.1.1",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
