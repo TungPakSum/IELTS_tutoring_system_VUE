@@ -1,4 +1,3 @@
-
 <template>
   <div class="container-fluid px-1 py-5 mx-auto background">
     <div class="row d-flex justify-content-center">
@@ -14,24 +13,38 @@
           <form class="form-card" @submit.prevent="submit">
             <div class="row justify-content-between text-left">
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label class="form-label px-3">旗站名稱
+                <label class="form-label px-3"
+                  >旗站名稱
                   <span class="text-danger"> *</span>
                 </label>
-                <input v-model="item.name" type="text" class="form-control" required="required">
+                <input
+                  v-model="item.name"
+                  type="text"
+                  class="form-control"
+                  required="required"
+                />
               </div>
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label class="form-label px-3">地區<span class="text-danger"> *</span></label>
+                <label class="form-label px-3"
+                  >地區<span class="text-danger"> *</span></label
+                >
                 <!-- <input
                   v-model="item.name"
                   type="text"
                   class="form-control"
                   required="required"
                         > -->
-                <select v-model="item.district" class="form-select" required="required">
-                  <option disabled value="">
-                    請選擇
-                  </option>
-                  <option v-for="district in districts" :key="district" :value="district">
+                <select
+                  v-model="item.district"
+                  class="form-select"
+                  required="required"
+                >
+                  <option disabled value="">請選擇</option>
+                  <option
+                    v-for="district in districts"
+                    :key="district"
+                    :value="district"
+                  >
                     {{ district.name }}
                   </option>
                 </select>
@@ -39,25 +52,50 @@
             </div>
             <div class="row justify-content-between text-left">
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label class="form-label px-3">地址<span class="text-danger"> *</span></label>
-                <input v-model="item.address" type="text" class="form-control" required="required">
+                <label class="form-label px-3"
+                  >地址<span class="text-danger"> *</span></label
+                >
+                <input
+                  v-model="item.address"
+                  type="text"
+                  class="form-control"
+                  required="required"
+                />
               </div>
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label class="form-label px-3">所屬旗站<span class="text-danger"> *</span></label>
-                <input v-model="item.subdistrict" type="text" class="form-control" required="required">
+                <label class="form-label px-3"
+                  >所屬旗站<span class="text-danger"> *</span></label
+                >
+                <input
+                  v-model="item.subdistrict"
+                  type="text"
+                  class="form-control"
+                  required="required"
+                />
               </div>
             </div>
             <div class="row justify-content-between text-left">
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label class="form-label px-3">已發送旗袋<span class="text-danger"> *</span></label> <input
-                  v-model="item.flagbag" type="number" class="form-control" required="required">
+                <label class="form-label px-3"
+                  >已發送旗袋<span class="text-danger"> *</span></label
+                >
+                <input
+                  v-model="item.flagbag"
+                  type="number"
+                  class="form-control"
+                  required="required"
+                />
               </div>
               <div class="form-group col-sm-6 flex-column d-flex">
-                <label class="form-label px-3">旗站負責人<span class="text-danger"> *</span></label>
-                <select v-model="item.IC" class="form-select" aria-label="Default select example">
-                  <option disabled value="">
-                    請選擇
-                  </option>
+                <label class="form-label px-3"
+                  >旗站負責人<span class="text-danger"> *</span></label
+                >
+                <select
+                  v-model="item.IC"
+                  class="form-select"
+                  aria-label="Default select example"
+                >
+                  <option disabled value="">請選擇</option>
                   <option v-for="ic in ics" :key="ic" :value="ic">
                     {{ ic.username }}
                   </option>
@@ -67,10 +105,13 @@
 
             <div class="row justify-content-end">
               <div class="form-group col-sm-6">
-                <button type="submit" class="btn btn-primary">
-                  儲存
-                </button>
-                <button id="Dbutton" type="button" class="btn btn-danger" @click="deleteItem">
+                <button type="submit" class="btn btn-primary">儲存</button>
+                <button
+                  id="Dbutton"
+                  type="button"
+                  class="btn btn-danger"
+                  @click="deleteItem"
+                >
                   刪除
                 </button>
               </div>
@@ -211,6 +252,7 @@
 </template>
 
 <script>
+document.title = "User profile";
 import { onMounted, computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
@@ -320,16 +362,19 @@ export default {
         location.assign("/login");
       } else if (response.status === 403) {
         alert(response.statusText);
-        history.back()
+        history.back();
       }
-    }
+    };
 
     const fetchPage = async function () {
-      const response = await fetch(`/api/stations/get/${router.params.sid}?eid=${eid.value}`, {
-        headers: {
-          "x-access-token": `${localStorage.getItem("token")}`,
+      const response = await fetch(
+        `/api/stations/get/${router.params.sid}?eid=${eid.value}`,
+        {
+          headers: {
+            "x-access-token": `${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
       if (response.ok) {
         let data = await response.json();
         item.value = data.items;
@@ -340,26 +385,29 @@ export default {
         location.assign("/login");
       } else if (response.status === 403) {
         alert(response.statusText);
-        history.back()
+        history.back();
       }
     };
 
     const fetchICs = async function () {
-      const response = await fetch(`/api/users/get/role/stationManager?printList=true`, {
-        headers: {
-          "x-access-token": `${localStorage.getItem("token")}`,
+      const response = await fetch(
+        `/api/users/get/role/stationManager?printList=true`,
+        {
+          headers: {
+            "x-access-token": `${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
       if (response.ok) {
         let data = await response.json();
         ics.value = data.items;
         console.log(ics.value);
       } else if (response.status === 401) {
         alert(response.statusText);
-        history.back()
+        history.back();
       } else if (response.status === 403) {
         alert(response.statusText);
-        history.back()
+        history.back();
       }
     };
 
@@ -395,7 +443,6 @@ export default {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(item.value),
-
         });
         if (response.ok) {
           alert("建立成功");
@@ -403,7 +450,6 @@ export default {
         } else {
           alert(response.statusText);
         }
-
       } else {
         const id = item.value._id;
         delete item.value._id;
@@ -425,7 +471,6 @@ export default {
             },
             body: JSON.stringify({ assigned: true }),
           });
-
         }
 
         const response = await fetch(`/api/stations/update/${id}`, {
@@ -443,7 +488,6 @@ export default {
         } else {
           alert(response.statusText);
         }
-
       }
     };
 
@@ -456,7 +500,7 @@ export default {
           body: JSON.stringify(item.value),
           headers: {
             "x-access-token": `${localStorage.getItem("token")}`,
-          }
+          },
         });
         console.log("line 158");
         if (response.ok) {
@@ -475,11 +519,10 @@ export default {
       submit,
       deleteItem,
       ics,
-      item
+      item,
     };
   },
 };
-
 </script>
 <style scoped>
 .btn {
@@ -493,7 +536,7 @@ body {
   height: 100%;
   /* background-image: url("https://i.imgur.com/GMmCQHC.png"); */
   background-repeat: no-repeat;
-  background-size: 100% 100%
+  background-size: 100% 100%;
 }
 
 .card {
@@ -505,11 +548,11 @@ body {
 }
 
 .blue-text {
-  color: #00BCD4
+  color: #00bcd4;
 }
 
 .form-control-label {
-  margin-bottom: 0
+  margin-bottom: 0;
 }
 
 input,
@@ -522,7 +565,7 @@ button {
   box-sizing: border-box;
   border: 1px solid #ccc;
   font-size: 18px !important;
-  font-weight: 300
+  font-weight: 300;
 }
 
 input:focus,
@@ -530,9 +573,9 @@ textarea:focus {
   -moz-box-shadow: none !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
-  border: 1px solid #00BCD4;
+  border: 1px solid #00bcd4;
   outline-width: 0;
-  font-weight: 400
+  font-weight: 400;
 }
 
 .btn-block {
@@ -540,17 +583,17 @@ textarea:focus {
   font-size: 15px !important;
   font-weight: 400;
   height: 43px;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .btn-block:hover {
-  color: #fff !important
+  color: #fff !important;
 }
 
 button:focus {
   -moz-box-shadow: none !important;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
-  outline-width: 0
+  outline-width: 0;
 }
 </style>

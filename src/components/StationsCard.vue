@@ -1,12 +1,22 @@
 <template>
   <div class="row">
     <div class="col-12 p-3 searchBox">
-      <input id="form1" v-model="Search" type="search" class="form-control" placeholder="Search">
+      <input
+        id="form1"
+        v-model="Search"
+        type="search"
+        class="form-control"
+        placeholder="Search"
+      />
     </div>
   </div>
 
   <div class="row">
-    <div v-for="item in items" :key="item" class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+    <div
+      v-for="item in items"
+      :key="item"
+      class="col-lg-3 col-md-4 col-sm-6 col-xs-12"
+    >
       <div class="tile">
         <div class="wrapper">
           <!-- <h5 class="card-title"> -->
@@ -14,7 +24,7 @@
             {{ item.name }}
           </div>
           <div class="banner-img">
-            <img src="http://via.placeholder.com/640x360" alt="Image 1">
+            <img src="http://via.placeholder.com/640x360" alt="Image 1" />
           </div>
           <!-- </h5> -->
           <div class="stats_address">
@@ -28,13 +38,23 @@
         </div>
 
         <div class="footer">
-          <router-link v-slot="{ navigate }" :to="`/events/${eid}/stations/${item._id}/volunteers`" custom>
+          <router-link
+            v-slot="{ navigate }"
+            :to="`/events/${eid}/stations/${item._id}/volunteers`"
+            custom
+          >
             <a href="#" class="Cbtn Cbtn-success" @click="navigate">義工</a>
           </router-link>
-          <router-link v-slot="{ navigate }" :to="`/events/${eid}/stations/${item._id}`" custom>
+          <router-link
+            v-slot="{ navigate }"
+            :to="`/events/${eid}/stations/${item._id}`"
+            custom
+          >
             <a href="#" class="Cbtn Cbtn-success" @click="navigate">編緝</a>
           </router-link>
-          <a href="#" class="Cbtn Cbtn-danger" @click="deleteStations(item._id)">刪除</a>
+          <a href="#" class="Cbtn Cbtn-danger" @click="deleteStations(item._id)"
+            >刪除</a
+          >
         </div>
       </div>
     </div>
@@ -48,7 +68,11 @@
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li v-for="i in pages.slice(currentFirstPage, currentLastPage)" :key="i" class="page-item">
+        <li
+          v-for="i in pages.slice(currentFirstPage, currentLastPage)"
+          :key="i"
+          class="page-item"
+        >
           <a class="page-link" @click="fetchPage(i)">{{ i }}</a>
         </li>
         <li class="page-item" @click="nextPage(i)">
@@ -62,6 +86,7 @@
 </template>
 
 <script>
+document.title = "Student account manager";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -108,10 +133,11 @@ export default {
     const fetchPage = async function (page) {
       currentPage.value = page;
       const response = await fetch(
-        `/api/stations/get?perPage=${perPage.value}&page=${page}&eid=${router.params.eid}`, {
+        `/api/stations/get?perPage=${perPage.value}&page=${page}&eid=${router.params.eid}`,
+        {
           headers: {
             "x-access-token": localStorage.getItem("token"),
-          }
+          },
         }
       );
       if (response.ok) {
@@ -125,9 +151,8 @@ export default {
           location.assign("/login");
         } else if (response.status === 403) {
           alert(response.statusText);
-          history.back()
-        } else
-          alert(response.statusText);
+          history.back();
+        } else alert(response.statusText);
       }
     };
 
@@ -305,7 +330,7 @@ div.footer {
 
 div.footer a.Cbtn {
   padding: 10px 25px;
-  background-color: #DADADA;
+  background-color: #dadada;
   color: #666;
   margin: 10px 2px;
   text-transform: uppercase;
@@ -316,16 +341,16 @@ div.footer a.Cbtn {
 
 div.footer a.Cbtn-success {
   background-color: #198754;
-  color: #FFF;
+  color: #fff;
 }
 
 div.footer a.Cbtn-success:hover {
-  background-color: #8BEFA7;
+  background-color: #8befa7;
 }
 
 div.footer a.Cbtn-danger {
   background-color: #fc5a5a;
-  color: #FFF;
+  color: #fff;
 }
 
 div.footer a.Cbtn-danger:hover {

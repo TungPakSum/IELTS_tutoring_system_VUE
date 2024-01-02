@@ -70,6 +70,7 @@
 </template>
 
 <script>
+document.title = "Writing practice";
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import JwtDecode from "jwt-decode";

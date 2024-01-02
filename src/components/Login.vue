@@ -3,7 +3,7 @@
     <div
       class="container d-flex align-items-center justify-content-center vh-100"
     >
-      <div class="row justify-content-center">
+      <div class="row w-100 justify-content-center">
         <div class="col-sm-6">
           <img src="" class="img-fluid" />
           <form @submit.prevent="submit" class="form-group">
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+document.title = "Login";
 import { ref, onMounted } from "vue";
 import JwtDecode from "jwt-decode";
 
