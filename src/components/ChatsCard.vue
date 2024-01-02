@@ -94,10 +94,19 @@ export default {
     const conversation = ref([]);
     const user = ref();
 
-    function systemMessage() {
+    function firstPrompt() {
       conversation.value.push({
         role: "system",
         content: `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
+          Generate any IETLS writing task and the requirement (word count)for the user to practice with
+          (Do not respond with the sentence Sure!I can ..., just generate the task right away)`,
+      });
+    }
+
+    function systemMessage() {
+      conversation.value.push({
+        role: "system",
+        content: `(You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions)
         This is the marking scheme for IELTS writing task:
           1. Task Achievement (TA) = how well you answer the question.
               To increase score for TA:
@@ -139,8 +148,7 @@ export default {
           Grammatical Range and Accuracy - 7.5.
           then score is (6.0+7.5+7.0+7.5)/4 =7.0.
 
-          Generate any IETLS writing task for the user to practice with, then give a band score base on the above marking scheme
-          (Do not respond with the sentence Sure!I can ..., just generate the task right away)
+          Give a band score base on the above marking scheme on the writing that the user had respond
           Do not hesitate to give extremely low mark to writing that are low in word count or out of topic
           (Do not respond with a sample writing unless the user told to, focus on the writing that the user had respond)`,
       });
@@ -298,7 +306,7 @@ export default {
     onMounted(() => {
       fetchCurrentUser();
       getConversation();
-      systemMessage();
+      firstPrompt();
       sendMessage();
     });
 
@@ -313,6 +321,7 @@ export default {
       getConversation,
       deleteMessage,
       systemMessage,
+      firstPrompt,
     };
   },
 };
