@@ -80,7 +80,7 @@ export default {
         user = JwtDecode(localStorage.getItem("token"));
 
         if (user.role === "admin") {
-          window.location.assign("/chat");
+          window.location.assign("/home");
         } else if (user.role === "student") {
           const data = await fetchStation();
           let eid = "";
@@ -88,7 +88,7 @@ export default {
             eid = data.itemsWithoutPages[i].eid;
           }
           console.log(eid);
-          window.location.assign(`/chat`);
+          window.location.assign(`/home`);
         }
       } else {
         alert("Incorrect Username or Password");

@@ -39,7 +39,6 @@
               <textarea
                 ref="textarea"
                 v-model="userMessage"
-                @keydown.enter="sendMessage"
                 @input="resizeTextarea"
                 type="text"
                 class="input-field rounded"
@@ -95,10 +94,11 @@ export default {
     const conversation = ref([]);
     const user = ref();
 
-    conversation.value.push({
-      role: "system",
-      content: `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
-        generate a IETLS writing task for the user to practice with, give band score base on the below marking scheme
+    function systemMessage() {
+      conversation.value.push({
+        role: "system",
+        content: `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
+        This is the marking scheme for IELTS writing task:
           1. Task Achievement (TA) = how well you answer the question.
               To increase score for TA:
 
@@ -138,11 +138,17 @@ export default {
           Lexical Resource: 7.0,
           Grammatical Range and Accuracy - 7.5.
           then score is (6.0+7.5+7.0+7.5)/4 =7.0.
-          Do not hesitate to give extremely low mark to writing that are low in word count or out of topic`,
-    });
+
+          Generate any IETLS writing task for the user to practice with, then give a band score base on the above marking scheme
+          (Do not respond with the sentence Sure!I can ..., just generate the task right away)
+          Do not hesitate to give extremely low mark to writing that are low in word count or out of topic
+          (Do not respond with a sample writing unless the user told to, focus on the writing that the user had respond)`,
+      });
+    }
 
     const resizeTextarea = (event) => {
       const textarea = event.target;
+      console.log("s");
       textarea.style.overflow = "hidden";
       textarea.style.height = "auto";
       textarea.style.height = textarea.scrollHeight + "px";
@@ -229,20 +235,24 @@ export default {
     };
 
     const sendMessage = async (event) => {
-      resizeTextarea(event);
-      saveMessage(userMessage.value, "user");
-      const message = userMessage.value;
-      // Add user message to chat
-      chatMessages.value.push({
-        //id: Date.now(),
-        content: message,
-        isUser: true,
-      });
-      userMessage.value = "";
+      if (userMessage.value) {
+        saveMessage(userMessage.value, "user");
 
-      // Call ChatGPT API to get the bot's response
-      // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
-      conversation.value.push({ role: "user", content: message });
+        const message = userMessage.value;
+
+        // Add user message to chat
+        chatMessages.value.push({
+          //id: Date.now(),
+          content: message,
+          isUser: true,
+        });
+
+        userMessage.value = "";
+        // Call ChatGPT API to get the bot's response
+        // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
+        conversation.value.push({ role: "user", content: message });
+        systemMessage();
+      }
 
       const url =
         "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo-16k/chat/completions?api-version=2023-08-01-preview";
@@ -288,6 +298,7 @@ export default {
     onMounted(() => {
       fetchCurrentUser();
       getConversation();
+      systemMessage();
       sendMessage();
     });
 
@@ -301,6 +312,7 @@ export default {
       fetchCurrentUser,
       getConversation,
       deleteMessage,
+      systemMessage,
     };
   },
 };

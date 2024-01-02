@@ -31,10 +31,10 @@
             class="navbar-nav me-auto mb-2 mb-lg-0"
           >
             <li class="navbar-brand">
-              <a class="nav-link" href="/admin">Admin</a>
+              <a class="nav-link" href="/admin">Admin Manager</a>
             </li>
             <li class="navbar-brand">
-              <a class="nav-link" href="/student">Student</a>
+              <a class="nav-link" href="/student">Student Manager</a>
             </li>
           </ul>
 
@@ -66,6 +66,13 @@
                 class="bi bi-box-arrow-in-left"
                 style="font-size: 33px"
                 @click="logout"
+              />
+              <i
+                v-if="login"
+                type="submit"
+                class="bi bi-person-circle"
+                style="font-size: 33px"
+                @click="profile"
               />
             </div>
             <!-- <router-link
@@ -137,18 +144,23 @@ export default {
       location.assign("/login");
       login.value = false;
     };
+
+    const profile = function () {
+      location.assign("/profile");
+    };
     return {
       user,
       visible,
       login,
       logout,
+      profile,
     };
   },
 };
 </script>
 <style scoped>
-.bi-box-arrow-in-left {
-  padding-left: 5px;
+.bi {
+  padding-left: 10px;
 }
 
 .navbar {

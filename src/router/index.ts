@@ -16,6 +16,8 @@ import loginView from "@/views/LoginView.vue";
 import StationsFormView from "@/views/StationsFormView.vue";
 import ScanView from "@/views/ScanView.vue";
 import RegView from "@/views/RegView.vue";
+import HomeView from "@/views/HomeView.vue";
+import ProfileView from "@/views/ProfileView.vue";
 
 const routes = [
   // Home
@@ -81,26 +83,39 @@ const routes = [
     ],
   },
 
-  // Events
+  // writing
   {
-    path: "/chat",
+    path: "/writing",
     children: [
       {
         path: "",
         component: ChatsView,
       },
+    ],
+  },
+
+  //profile
+  {
+    path: "/profile",
+    children: [
       {
-        path: "create",
-        name: "Chat Creation",
-        component: ChatForm,
-      },
-      {
-        path: ":uid",
-        name: "Chat Details",
-        component: ChatForm,
+        path: "",
+        component: ProfileView,
       },
     ],
   },
+
+  //home
+  {
+    path: "/home",
+    children: [
+      {
+        path: "",
+        component: HomeView,
+      }
+    ],
+  },
+
   // Stations
   {
     path: "/events/:eid/stations",
