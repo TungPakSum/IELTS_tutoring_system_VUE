@@ -24,7 +24,7 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    redirect: "/login",
+    redirect: "/home",
   },
   // Login
   {
@@ -32,12 +32,7 @@ const routes = [
     name: "login",
     component: loginView,
   },
-  //Scan QR code page
-  {
-    path: "/scan",
-    name: "Scan QR code",
-    component: ScanView,
-  },
+  
   // Users
   {
     path: "/admin",
@@ -116,48 +111,8 @@ const routes = [
     ],
   },
 
-  // Stations
-  {
-    path: "/events/:eid/stations",
-    children: [
-      {
-        path: "",
-        component: StationsView,
-      },
-      {
-        path: "create",
-        component: StationsFormView,
-      },
-      {
-        path: ":sid",
-        name: "Station Details",
-        component: StationForm,
-      },
-      {
-        path: "update",
-        name: "Station Update",
-        component: ChatForm,
-      },
-    ],
-  },
-  // Volunteers
-  {
-    path: "/events/:eid/stations/:sid/volunteers",
-    children: [
-      {
-        path: "",
-        component: VolunteersView,
-      },
-      {
-        path: "create",
-        component: VolunteerForm,
-      },
-      {
-        path: ":vid",
-        component: VolunteerForm,
-      },
-    ],
-  },
+  
+  
   //flagbag
   {
     path: "/events/:eid/stations/:sid/volunteers/:vid/flagbags",

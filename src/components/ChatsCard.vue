@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col">
-      <div class="chatbot-interface flex-grow-1 mt-5">
+      <div class="chatbot-interface flex-grow-1 mt-5 mb-5">
         <div class="chat-container">
           <div
             v-for="message in chatMessages"
@@ -25,6 +25,14 @@
                 }}
               </div>
             </div>
+          </div>
+          <div class="message mb-3">
+            <button
+              @click="generateNewWritingTask"
+              class="btn btn-outline-secondary bi-arrow-right mt-5"
+            >
+              Generate a new writing task
+            </button>
           </div>
         </div>
       </div>
@@ -80,6 +88,7 @@ export default {
     const chatMessages = ref([]);
     const userMessage = ref("");
     const apiKey = `${process.env.VUE_APP_OPENAI_API_KEY}`;
+    const systemPrompt = `Give comment to the user's writing`;
     //const basicUrl = (
     //  <a
     //    href="https://chatgpt.hkbu.edu.hk/general/rest"
@@ -98,61 +107,38 @@ export default {
       conversation.value.push({
         role: "system",
         content: `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
-          Generate any IETLS writing task and the requirement (word count)for the user to practice with
+          Generate an IETLS writing task 2 and the requirement (word count)for the user to practice with
           (Do not respond with the sentence Sure!I can ..., just generate the task right away)`,
       });
     }
 
+    function generateNewWritingTask() {
+      firstPrompt();
+      sendMessage();
+    }
+
     function systemMessage() {
+      console.log(systemPrompt);
       conversation.value.push({
         role: "system",
-        content: `(You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions)
-        This is the marking scheme for IELTS writing task:
-          1. Task Achievement (TA) = how well you answer the question.
-              To increase score for TA:
-
-              present the information accurately
-              answer all parts of the task
-              provide a clear overview
-              give a clear position, have a definite opinion
-
-          2. Coherence and Cohesion (CC) = how well is your text structured.
-              To increase score for CC:
-
-              manage paragraphing
-              make sure that each paragraph has a central idea
-              use linking words and cohesive devices (firstly, in contrast, thus, in my opinion, to sum up etc)
-
-          3.Lexical Resource (LR) = how good is your vocabulary.
-              To increase score for LR:
-
-              use a wide range of vocabulary
-              use less common lexical items
-              avoid errors in spelling and word formation
-
-          4.Grammatical Range and Accuracy (GRA) = how good is your grammar.
-              To increase score for GRA:
-
-              use a wide range of grammatical structures and tenses
-              manage punctuation
-              avoid errors in sentences
-
-          IELTS Writing score calculation
-          Each of these four criteria receives a score from 0 to 9 points. After that, an arithmetic mean is calculated to determine the task's total score.
-
-          For example, if it gets following marks:
-
-          Task Achievement: 6.0,
-          Coherence and Cohesion: 7.5,
-          Lexical Resource: 7.0,
-          Grammatical Range and Accuracy - 7.5.
-          then score is (6.0+7.5+7.0+7.5)/4 =7.0.
-
-          Give a band score base on the above marking scheme on the writing that the user had respond
-          Do not hesitate to give extremely low mark to writing that are low in word count or out of topic
-          (Do not respond with a sample writing unless the user told to, focus on the writing that the user had respond)`,
+        content: systemPrompt,
       });
     }
+
+    const checkUserToken = async function () {
+      const response = await fetch(`/api/users/check`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.status === 401) {
+        alert("session time out");
+        location.assign("/login");
+      } else if (response.status === 403) {
+        alert(response.statusText);
+        history.back();
+      }
+    };
 
     const resizeTextarea = (event) => {
       const textarea = event.target;
@@ -230,7 +216,8 @@ export default {
           }));
         }
       } else if (response.status === 404) {
-        console.error("no message found");
+        firstPrompt();
+        sendMessage();
       }
     };
 
@@ -304,10 +291,9 @@ export default {
     };
 
     onMounted(() => {
+      checkUserToken();
       fetchCurrentUser();
       getConversation();
-      firstPrompt();
-      sendMessage();
     });
 
     return {
@@ -322,6 +308,8 @@ export default {
       deleteMessage,
       systemMessage,
       firstPrompt,
+      generateNewWritingTask,
+      checkUserToken,
     };
   },
 };

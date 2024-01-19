@@ -1,7 +1,13 @@
 <template>
   <div class="row">
     <div class="col-12 p-3 searchBox">
-      <input id="form1" v-model="Search" type="search" class="form-control" placeholder="Search">
+      <input
+        id="form1"
+        v-model="Search"
+        type="search"
+        class="form-control"
+        placeholder="Search"
+      />
     </div>
   </div>
   <!-- <div class="card-group row"> -->
@@ -43,24 +49,34 @@
   <!-- </div> -->
   <!-- </div> -->
   <div class="row">
-    <div v-for="item in resultItems" :key="item" class="card testimonial-card col-sm-2 flex " style="padding: 0px">
+    <div
+      v-for="item in resultItems"
+      :key="item"
+      class="card testimonial-card col-sm-2 flex"
+      style="padding: 0px"
+    >
       <div class="card-up aqua-gradient" />
       <div class="avatar mx-auto white">
-        <router-link v-slot="{ navigate }" :to="`/${item.role}/${item._id}`" custom>
-          <img src="../assets/userIcon.png" class="rounded-circle img-fluid" alt="woman avatar" @click="navigate">
+        <router-link
+          v-slot="{ navigate }"
+          :to="`/${item.role}/${item._id}`"
+          custom
+        >
+          <img
+            src="../assets/userIcon.png"
+            class="rounded-circle img-fluid"
+            alt="woman avatar"
+            @click="navigate"
+          />
         </router-link>
       </div>
       <div class="card-body text-center">
         <h4 class="card-title font-weight-bold">
           {{ item.username }}
         </h4>
-        <hr>
-        <p v-if="item.role === 'admin'">
-          Admin Account
-        </p>
-        <p v-if="item.role === 'student'">
-          Student Account
-        </p>
+        <hr />
+        <p v-if="item.role === 'admin'">Admin Account</p>
+        <p v-if="item.role === 'student'">Student Account</p>
       </div>
     </div>
   </div>
@@ -73,7 +89,11 @@
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li v-for="i in pages.slice(currentFirstPage, currentLastPage)" :key="i" class="page-item">
+        <li
+          v-for="i in pages.slice(currentFirstPage, currentLastPage)"
+          :key="i"
+          class="page-item"
+        >
           <a class="page-link" @click="fetchPage(i)">{{ i }}</a>
         </li>
         <li class="page-item" @click="nextPage(i)">
@@ -94,7 +114,7 @@ export default {
   setup: function () {
     const lastPage = ref(0);
     const perPage = ref(6);
-    const router = useRoute()
+    const router = useRoute();
     let currentFirstPage = ref(1);
     let currentLastPage = ref(3);
     let currentPage = ref();
@@ -110,14 +130,17 @@ export default {
     const resultItems = computed(() => {
       if (Search.value) {
         return items.value.filter((item) => {
-          console.log(item)
-          return item.username.toLowerCase().indexOf(Search.value.toLowerCase()) !== -1
-            || item.role.toLowerCase().indexOf(Search.value.toLowerCase()) !== -1
+          console.log(item);
+          return (
+            item.username.toLowerCase().indexOf(Search.value.toLowerCase()) !==
+              -1 ||
+            item.role.toLowerCase().indexOf(Search.value.toLowerCase()) !== -1
+          );
           // || item.email.toLowerCase().indexOf(Search.value.toLowerCase()) !== -1
-        })
+        });
       }
       return items.value;
-    })
+    });
 
     const pages = computed(() => {
       let pages = [];
@@ -128,13 +151,13 @@ export default {
     });
 
     const fetchPage = async function (page) {
-      let userType = router.path.split('/')[1];
+      let userType = router.path.split("/")[1];
       const response = await fetch(
         `/api/users/get/role/${userType}?perPage=${perPage.value}&page=${page}`,
         {
           headers: {
-            "x-access-token": localStorage.getItem("token")
-          }
+            "x-access-token": localStorage.getItem("token"),
+          },
         }
       );
       currentPage.value = page;
@@ -144,13 +167,12 @@ export default {
         lastPage.value = data.pages;
       } else {
         if (response.status === 401) {
-          alert(response.statusText);
+          alert("session time out");
           location.assign("/login");
         } else if (response.status === 403) {
-          alert(response.statusText);
-          history.back()
-        } else
-          alert(response.send);
+          alert("You do not have the premisson to access this page");
+          history.back();
+        } else alert(response.send);
       }
     };
 
@@ -181,7 +203,7 @@ export default {
     };
 
     // eslint-disable-next-line no-unused-vars
-    const pagination = async function (page) { };
+    const pagination = async function (page) {};
 
     const nextPage = (currentPage) => {
       fetchPage(currentPage);
@@ -195,7 +217,7 @@ export default {
     //         const searchTokens = searchText.toLowerCase().split(" ");
 
     //         // const searchTextLower = searchText.replaceAll(" ", "").toLowerCase();
-    //         // alert(searchTextLower) 
+    //         // alert(searchTextLower)
     //         const filteredItems = itemsWithoutPages.value.filter((item) => {
     //           for(let t in searchTokens) {
     //             if(item.username.toLowerCase().indexOf(searchTokens[t]) !== -1
@@ -205,7 +227,6 @@ export default {
     //             }
     //           }
     //           return false
-
 
     //         // return true
     // //           return (
@@ -247,7 +268,7 @@ export default {
       createUsers,
       //filterItems,
       currentPage,
-      resultItems
+      resultItems,
     };
   },
 };

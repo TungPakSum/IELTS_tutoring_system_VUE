@@ -42,7 +42,7 @@
           alt="Reading Icon"
         />
         <div class="card-body">
-          <h5 class="card-title">Reading Practice</h5>
+          <h5 class="card-title">IELTS Reading Practice</h5>
           <p class="card-text">
             Enhance your reading skills for the IELTS exam.
           </p>
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 export default {
   setup() {
@@ -76,10 +76,30 @@ export default {
       console.log("Start Reading Practice");
     };
 
+    const checkUserToken = async function () {
+      const response = await fetch(`/api/users/check`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.status === 401) {
+        alert("session time out");
+        location.assign("/login");
+      } else if (response.status === 403) {
+        alert(response.statusText);
+        history.back();
+      }
+    };
+
+    onMounted(function () {
+      checkUserToken();
+    });
+
     return {
       startWritingPractice,
       startSpeakingPractice,
       startReadingPractice,
+      checkUserToken,
     };
   },
 };

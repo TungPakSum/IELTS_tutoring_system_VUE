@@ -2,11 +2,7 @@
   <div id="vue">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-3">
       <div class="container-sm">
-        <a v-if="!login" class="navbar-brand">
-          <router-link v-slot="{ navigate }" :to="`/login`" custom>
-            <img src="" width="148" height="60" @click="navigate" />
-          </router-link>
-        </a>
+        <a v-if="!login" class="navbar-brand"> </a>
         <a v-else class="navbar-brand"> </a>
         <button
           v-if="login"
@@ -26,14 +22,11 @@
           :class="!visible ? 'collapse' : ''"
           class="navbar-collapse"
         >
-          <ul
-            v-if="login && !isStudent"
-            class="navbar-nav me-auto mb-2 mb-lg-0"
-          >
-            <li class="navbar-brand">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="navbar-brand" v-if="login && isAdmin">
               <a class="nav-link" href="/admin">Admin Manager</a>
             </li>
-            <li class="navbar-brand">
+            <li class="navbar-brand" v-if="login && isAdmin">
               <a class="nav-link" href="/student">Student Manager</a>
             </li>
           </ul>
@@ -115,11 +108,12 @@ export default {
   setup: function () {
     const user = ref({});
     const login = ref(false);
-    const isStudent = ref(false);
+    const isAdmin = ref(false);
     let visible = ref(false);
     const router = useRoute();
 
     onMounted(function () {
+      checkUserToken();
       fetchPage();
     });
 
@@ -128,13 +122,12 @@ export default {
         const decodedToken = JwtDecode(localStorage.getItem("token"));
         user.value = decodedToken;
 
-        if (user.value.role == "student") {
-          isStudent.value = true;
+        if (user.value.role == "admin") {
+          isAdmin.value = true;
+          console.log(isAdmin.value);
         }
 
-        console.log(user.value);
         console.log(user.value.role);
-        console.log(isStudent.value);
         login.value = true;
       }
     };
@@ -148,12 +141,26 @@ export default {
     const profile = function () {
       location.assign("/profile");
     };
+
+    const checkUserToken = async function () {
+      const response = await fetch(`/api/users/check`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.status === 401) {
+        login.value = false;
+      }
+    };
+
     return {
       user,
       visible,
       login,
       logout,
       profile,
+      checkUserToken,
+      isAdmin,
     };
   },
 };

@@ -5,8 +5,8 @@
         <h3>User Profile</h3>
         <div class="card">
           <form class="form-card" @submit.prevent="submit">
-            <div class="row justify-content-between text-left">
-              <div class="form-group col-sm-6 flex-column d-flex">
+            <div class="row justify-content-center">
+              <div class="form-group">
                 <label for="username" class="form-label">User Name</label>
                 <input
                   v-model="item.username"
@@ -15,7 +15,7 @@
                   required="required"
                 />
               </div>
-              <div class="form-group col-sm-6 flex-column d-flex">
+              <div class="form-group">
                 <label for="email" class="form-label">Email Address</label>
                 <input
                   v-model="item.email"
@@ -25,20 +25,16 @@
                 />
               </div>
             </div>
-            <div class="row justify-content-between text-center">
+            <div class="row justify-content-center text-center">
               <div class="form-group col-sm-6">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  @click="deleteUsers(item._id)"
-                >
-                  Delete User
+                <button type="submit" class="btn btn-primary mt-3 mb-3">
+                  Save changes
                 </button>
                 <button
                   type="button"
-                  class="btn btn-secondary"
+                  class="btn btn-Info"
                   @click="changePasswordForm = true"
+                  v-if="!changePasswordForm"
                 >
                   Change Password
                 </button>
@@ -46,8 +42,8 @@
             </div>
 
             <div v-if="changePasswordForm">
-              <div class="row justify-content-between text-left">
-                <div class="form-group col-sm-6 flex-column d-flex">
+              <div class="row justify-content-center">
+                <div class="form-group">
                   <label for="existingPassword" class="form-label"
                     >Current Password</label
                   >
@@ -58,7 +54,7 @@
                     required="required"
                   />
                 </div>
-                <div class="form-group col-sm-6 flex-column d-flex">
+                <div class="form-group">
                   <label for="newPassword" class="form-label"
                     >New Password</label
                   >
@@ -70,25 +66,27 @@
                   />
                 </div>
               </div>
-              <div class="row justify-content-end">
+              <div class="row justify-content-center">
                 <div class="form-group col-sm-6">
+                  <button
+                    type="button"
+                    class="btn btn-dark"
+                    @click="changePasswordForm = false"
+                  >
+                    Cancel
+                  </button>
+
                   <button
                     type="button"
                     class="btn btn-primary"
                     @click="changePassword"
                   >
-                    Save
+                    Save new password
                   </button>
+
                   <button
                     type="button"
-                    class="btn btn-secondary"
-                    @click="changePasswordForm = false"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-primary"
+                    class="btn btn-info"
                     @click="resetPassword"
                   >
                     Reset Password
@@ -142,7 +140,6 @@ export default {
     onMounted(() => {
       fetchPage();
       checkUserToken();
-      checkUserType();
       getPath();
     });
 
@@ -153,18 +150,10 @@ export default {
         },
       });
       if (response.status === 401) {
-        alert(response.statusText);
+        alert("session time out");
         location.assign("/login");
       } else if (response.status === 403) {
         alert(response.statusText);
-        history.back();
-      }
-    };
-
-    const checkUserType = function () {
-      const token = decode(localStorage.getItem("token"));
-      if (token.role !== "admin") {
-        alert("權限不足");
         history.back();
       }
     };
@@ -242,7 +231,7 @@ export default {
       });
       console.log(response);
       if (response.ok) {
-        alert("更新成功");
+        alert("Profile update sucessful");
         window.location.replace(path.value);
       } else {
         alert(response.statusText);
@@ -287,7 +276,7 @@ export default {
       // Verify existing password
       const isMatch = comparePasswords(existingPassword.value);
       if (!isMatch) {
-        alert("現有密碼不正確");
+        alert("Incorrect current password ");
         return;
       } else {
         item.value.password = await bcrypt.hash(newPassword.value, 10);
@@ -307,7 +296,7 @@ export default {
       item.value._id = id;
 
       if (response.ok) {
-        alert("密碼已更改");
+        alert("password changed");
         changePasswordForm.value = false;
         existingPassword.value = "";
         newPassword.value = "";
