@@ -68,6 +68,7 @@ export default {
 
     const startSpeakingPractice = () => {
       // Handle logic for starting IELTS speaking practice
+      window.location.assign(`/speaking`);
       console.log("Start IELTS Speaking Practice");
     };
 

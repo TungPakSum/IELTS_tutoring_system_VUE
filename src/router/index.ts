@@ -18,6 +18,7 @@ import ScanView from "@/views/ScanView.vue";
 import RegView from "@/views/RegView.vue";
 import HomeView from "@/views/HomeView.vue";
 import ProfileView from "@/views/ProfileView.vue";
+import SpeakingView from "@/views/SpeakingView.vue";
 
 const routes = [
   // Home
@@ -85,6 +86,17 @@ const routes = [
       {
         path: "",
         component: ChatsView,
+      },
+    ],
+  },
+
+  // speaking
+  {
+    path: "/speaking",
+    children: [
+      {
+        path: "",
+        component: SpeakingView,
       },
     ],
   },
