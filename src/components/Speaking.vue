@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row" novalidate>
     <div class="col">
       <div class="chatbot-interface flex-grow-1 mt-5 mb-5">
         <div class="chat-container">
@@ -28,10 +28,11 @@
           </div>
           <div class="message mb-3">
             <button
+              v-if = "chatMessages.length === 0"
               @click="generateNewWritingTask"
               class="btn btn-outline-secondary bi-arrow-right mt-5"
             >
-              Generate a new writing task
+              Start mock speaking exam
             </button>
           </div>
         </div>
@@ -40,44 +41,39 @@
   </div>
   <div class="row">
     <div class="col">
-      <div class="user-input fixed-bottom bg-light mt-3">
-        <div class="container py-3">
+      <div class="user-input fixed-bottom bg-light mt-3 ">
+        <div class="container py-3 ">
           <div class="row">
-            <div class="col">
-              <textarea
-                ref="textarea"
-                v-model="userMessage"
-                @input="resizeTextarea"
-                type="text"
-                class="input-field rounded"
-                placeholder="Type your writing here..."
-              ></textarea>
-            </div>
-            <div class="col-auto">
-              <button
-                @click="sendMessage"
-                class="btn bi-send btn-lg"
-                :disabled="userMessage.trim() === ''"
-              >
-                Send
-              </button>
+            
+            <div class="col d-flex justify-content-center align-items-center">
+              
               <button
                 @click="deleteMessage"
-                class="btn bi-trash btn-lg"
+                class="btn bi-arrow-repeat btn-lg"
                 :disabled="chatMessages.length === 0"
               >
-                Delete chats
+                Restart
               </button>
 
               <button
-                @click="startSpeechToText"
-                class="btn bi-mic btn-lg"
-                :disabled="isRecording"
+              :disabled="chatMessages.length === 0"
+                @click="isRecording ? stopSpeechToText() : startSpeechToText()"
+                :class="['btn btn-secondary', 'bi-mic', 'btn-lg', {'btn-danger': isRecording}]"
               >
-                Speak
+                {{ isRecording ? 'Finish Recording' : 'Speak' }}
               </button>
+  
             </div>
           </div>
+
+            <div v-if="isRecording" class="row mt-3">
+              <div class="col d-flex justify-content-center align-items-center">
+                <div class="spoken-text fs-3">
+                  {{ userMessage }}
+                </div>
+              </div>
+            </div>
+
         </div>
       </div>
     </div>
@@ -119,7 +115,10 @@ export default {
     const startSpeechToText = () => {
       isRecording.value = true;
       recognition.start();
+      console.log("speech start")
     };
+
+    
 
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
@@ -129,23 +128,27 @@ export default {
       userMessage.value = transcript;
     };
 
-    recognition.onend = () => {
-      isRecording.value = false;
-      // Automatically send the message when the user stops talking
-      sendMessage();
-    };
+  
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error", event.error);
       isRecording.value = false;
     };
 
+    const stopSpeechToText = () => {
+      isRecording.value = false;
+      recognition.stop();
+      sendMessage();
+      console.log("speech stop")
+    }
+
+
     function Prompt() {
       conversation.value.push({
         role: "system",
-        content: `You role is a IELTS speaking examiner, you should only answer response related to IELTS speaking, refuse to answer other irrelatant questions
-          Ask question in the actual IELTS speaking including part 1 and part 2 one by one, then let the user answer it, the exam should last for 10mins and you should a lot of question.
-          (Do not respond with point form skip the question number, just ask the question right away)`,
+        content: `You role is a IELTS speaking examiner. Simulate a real IELTS speaking exam. Ask one question each time only. 
+        After asking one question. After the user had answer your question, ask another questions that further expand on the user previous reponse.
+        Repeat the above step until all part had ended.`,
       });
     }
 
@@ -179,7 +182,7 @@ export default {
 
     const resizeTextarea = (event) => {
       const textarea = event.target;
-      console.log("s");
+
       textarea.style.overflow = "hidden";
       textarea.style.height = "auto";
       textarea.style.height = textarea.scrollHeight + "px";
@@ -187,7 +190,7 @@ export default {
 
     const saveMessage = async (messageText, role) => {
       try {
-        const response = await fetch(`/api/chats/save`, {
+        const response = await fetch(`/api/speakingChats/save`, {
           method: "post",
           headers: {
             "Content-Type": "application/json",
@@ -213,8 +216,8 @@ export default {
     const deleteMessage = async function (event) {
       event.preventDefault();
 
-      if (confirm("are you sure to delete all your chats?")) {
-        const response = await fetch(`/api/chats/delete/${user.value._id}`, {
+      if (confirm("are you sure to delete all your chats and restart the test?")) {
+        const response = await fetch(`/api/speakingChats/delete/${user.value._id}`, {
           method: "delete",
           headers: {
             "x-access-token": `${localStorage.getItem("token")}`,
@@ -230,7 +233,7 @@ export default {
     };
 
     const getConversation = async () => {
-      const response = await fetch(`/api/chats/get/${user.value._id}`, {
+      const response = await fetch(`/api/speakingChats/get/${user.value._id}`, {
         headers: {
           "x-access-token": `${localStorage.getItem("token")}`,
         },
@@ -283,13 +286,20 @@ export default {
         // Call ChatGPT API to get the bot's response
         // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
         conversation.value.push({ role: "user", content: message });
-        prompt();
+        
+        if(chatMessages.length > 0)
+          {
+              conversation.value.push({
+              role: "system",
+              content: `Keep acting as a IELTS speaking examiner.`,
+            });
+          }
       }
 
       const url =
         "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo-16k/chat/completions?api-version=2023-08-01-preview";
       const headers = { "Content-Type": "application/json", "api-key": apiKey };
-      console.log(JSON.stringify(conversation.value));
+      //console.log(JSON.stringify(conversation.value));
       const payload = { messages: conversation.value };
 
       try {
@@ -368,6 +378,7 @@ export default {
       checkUserToken,
       isRecording,
       startSpeechToText,
+      stopSpeechToText
     };
   },
 };

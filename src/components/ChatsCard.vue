@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row" >
     <div class="col">
       <div class="chatbot-interface flex-grow-1 mt-5 mb-5">
         <div class="chat-container">
@@ -88,7 +88,7 @@ export default {
     const chatMessages = ref([]);
     const userMessage = ref("");
     const apiKey = `${process.env.VUE_APP_OPENAI_API_KEY}`;
-    const systemPrompt = `Give comment to the user's writing`;
+    const systemPrompt = `Give comment to the user's writing, Grammatical range and accuracy, Lexical resource, task response and Coherence and cohesion`;
     //const basicUrl = (
     //  <a
     //    href="https://chatgpt.hkbu.edu.hk/general/rest"
