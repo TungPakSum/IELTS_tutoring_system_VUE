@@ -146,7 +146,7 @@ export default {
     function Prompt() {
       conversation.value.push({
         role: "system",
-        content: `You role is a IELTS speaking examiner. Simulate a real IELTS speaking exam. Ask one question each time only. 
+        content: `You role is a IELTS speaking examiner. give the user a real IELTS speaking exam. Ask one question each time only. 
         After asking one question. After the user had answer your question, ask another questions that further expand on the user previous reponse.
         Repeat the above step until all part had ended.`,
       });
@@ -291,7 +291,7 @@ export default {
           {
               conversation.value.push({
               role: "system",
-              content: `Keep acting as a IELTS speaking examiner.`,
+              content: `Keep acting as a IELTS speaking examiner. Keep ask question. Do not give too lengthly responds to the user respond.`,
             });
           }
       }

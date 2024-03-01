@@ -19,6 +19,7 @@ import RegView from "@/views/RegView.vue";
 import HomeView from "@/views/HomeView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import SpeakingView from "@/views/SpeakingView.vue";
+import ModReadingView from "@/views/ModReadingView.vue";
 
 const routes = [
   // Home
@@ -97,6 +98,17 @@ const routes = [
       {
         path: "",
         component: SpeakingView,
+      },
+    ],
+  },
+
+  // modReading
+  {
+    path: "/modreading",
+    children: [
+      {
+        path: "",
+        component: ModReadingView,
       },
     ],
   },
