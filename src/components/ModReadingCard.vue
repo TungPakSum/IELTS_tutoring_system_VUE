@@ -76,6 +76,7 @@
 <script>
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
+import decode from "jwt-decode";
 
 export default {
   setup: function () {
@@ -89,10 +90,37 @@ export default {
     let Search = ref();
 
     onMounted(function () {
+      checkUserToken();
+      checkUserType();
       fetchPage(1);
       currentFirstPage.value = 0;
       currentLastPage.value = 3;
+      
     });
+
+
+    const checkUserToken = async function () {
+      const response = await fetch(`/api/users/check`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.status === 401) {
+        alert("session time out");
+        location.assign("/login");
+      } else if (response.status === 403) {
+        alert(response.statusText);
+        history.back();
+      }
+    };
+
+    const checkUserType = function () {
+      const token = decode(localStorage.getItem("token"));
+      if (token.role !== "admin") {
+        alert("you do not have the premisson to access this page");
+        history.back();
+      }
+    };
 
     const resultItems = computed(() => {
       if (Search.value) {
@@ -175,6 +203,7 @@ export default {
       test,
       currentPage,
       resultItems,
+      
     };
   },
 };

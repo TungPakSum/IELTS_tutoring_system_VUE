@@ -40,7 +40,7 @@
         <p class = "fw-bold fs-3">Reading practice {{ index + 1 }}</p>
 
         <div class="card-footer" v-if="item.score">
-          Score: {{ item.score}}
+          Your Score: {{ item.score}}
         </div>
       </div>
     </div>
