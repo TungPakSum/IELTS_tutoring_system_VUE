@@ -1,19 +1,19 @@
 <template>
   <div>
     <BreadcrumbUI/>
-    <ModReadingCard/>
+    <ReadingCard/>
   </div>
 </template>
 
 <script>
 import BreadcrumbUI from '@/components/BreadcrumbUI.vue'
-import ModReadingCard from '@/components/ModReadingCard.vue'
+import ReadingCard from '@/components/ReadingCard.vue'
 
 export default ({
-  name: 'ModReadingCardView',
+  name: 'ReadingCardView',
   components: {
     BreadcrumbUI,
-    ModReadingCard
+    ReadingCard
   }
 })
 </script>

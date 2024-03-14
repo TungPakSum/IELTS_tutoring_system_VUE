@@ -29,6 +29,9 @@
             <li class="navbar-brand" v-if="login && isAdmin">
               <a class="nav-link" href="/student">Student Manager</a>
             </li>
+            <li class="navbar-brand" v-if="login && isAdmin">
+              <a class="nav-link" href="/modreading">Reading Passages Manager</a>
+            </li>
           </ul>
 
           <!-- <ul

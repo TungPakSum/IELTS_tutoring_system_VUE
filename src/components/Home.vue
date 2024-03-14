@@ -74,6 +74,7 @@ export default {
 
     const startReadingPractice = () => {
       // Handle logic for starting reading practice
+      window.location.assign(`/reading`);
       console.log("Start Reading Practice");
     };
 

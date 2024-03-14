@@ -12,8 +12,8 @@
   </div>
   <div class="row">
     <div
-      v-for="(item, index) in resultItems"
-      :key="item._id"
+      v-for="item in resultItems"
+      :key="item"
       class="card testimonial-card col-sm-5 flex"
       style="padding: 0px"
     >
@@ -21,7 +21,7 @@
       <div class="avatar mx-auto white">
         <router-link
           v-slot="{ navigate }"
-          :to="`/reading/${item._id}`"
+          :to="`/modreading/${item._id}`"
           custom
         >
           <img
@@ -36,12 +36,8 @@
         <h4 class="card-title font-weight-bold fs-5">
           {{ item.title }}
         </h4>
-        <hr/>
-        <p class = "fw-bold fs-3">Reading practice {{ index + 1 }}</p>
-
-        <div class="card-footer" v-if="item.score">
-          Score: {{ item.score}}
-        </div>
+        <hr />
+        <p class = "fw-bold fs-3">Reading practice</p>
       </div>
     </div>
   </div>
@@ -70,13 +66,16 @@
     </nav>
   </div>
 
-  
+  <div class="row mt-3">
+    <div class="col-12">
+      <router-link :to="`/modreading/create`" class="btn btn-primary">Create New Reading Practice</router-link>
+    </div>
+  </div>
 </template>
 
 <script>
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import JwtDecode from "jwt-decode";
 
 export default {
   setup: function () {
@@ -118,6 +117,7 @@ export default {
     });
 
     const fetchPage = async function (page) {
+      
       const response = await fetch(
         `/api/readings/getall/perPage=${perPage.value}/page=${page}`,
         {
@@ -130,27 +130,17 @@ export default {
       currentPage.value = page;
       if (response.ok) {
         let data = await response.json();
-        let userId = JwtDecode(localStorage.getItem("token"))._id; 
-
-        let passagesWithScores = await Promise.all(data.passages.map(async (passage) => {
-          const scoreResponse = await fetch(`/api/scores/getByUserAndPassage/${userId}/${passage._id}`, {
-            method: 'GET',
-            headers: {
-              "x-access-token": localStorage.getItem("token"),
-            },
-          });
-          if (scoreResponse.ok) {
-            const scoreData = await scoreResponse.json();
-            return { ...passage, score: scoreData.score.score }; // Assume scoreData contains score information
-          } else {
-            return { ...passage, score: null }; // Default to null if score can't be fetched
-          }
-        }));
-
-        items.value = passagesWithScores;
+        items.value = data.passages;
+        console.log("passage: " + data.passages) //debug
         lastPage.value = data.pages;
       } else {
-        // Handle other HTTP errors
+        if (response.status === 401) {
+          alert("session time out");
+          location.assign("/login");
+        } else if (response.status === 403) {
+          alert("You do not have the premisson to access this page");
+          history.back();
+        } else alert(response.send);
       }
     };
 
