@@ -1,7 +1,7 @@
 <template>
-    <div>
-      <h2>Add Reading Passage</h2>
-      <form @submit.prevent="submitForm">
+    <div class ="mt-3">
+      <h2>Reading Passage</h2>
+      <form @submit.prevent="submit">
         <div class="mb-3">
           <label for="passageTitle" class="form-label">Passage Title</label>
           <input type="text" class="form-control" id="passageTitle" v-model="passage.title" required>
@@ -10,7 +10,7 @@
           <label for="passageContent" class="form-label">Passage Content</label>
           <textarea class="form-control" id="passageContent" v-model="passage.content" rows="5" required></textarea>
         </div>
-        <h3>Add Multiple-Choice Questions</h3>
+        <h3>Multiple-Choice Questions</h3>
         <div v-for="(question, index) in questions" :key="index" class="mb-3">
           <h5>Question {{ index + 1 }}</h5>
           <div class="mb-2">
@@ -40,25 +40,41 @@
               <option v-for="(option, index) in question.options" :key="index" :value="index">{{ option }}</option>
             </select>
           </div>
-          <button v-if="index === questions.length - 1" @click="addQuestion" type="button" class="btn btn-secondary">Add Additional Question</button>
+
+          
+            <button v-if="index !== 0" @click="deleteQuestion(index)" type="button" class="btn btn-danger m-2 bi bi-dash-square"> Delete Question</button>
+          
+
+          <button v-if="index === questions.length - 1" @click="addQuestion" type="button" class="btn btn-secondary m-2 bi bi-plus-square"> Add Question</button>
         <hr v-if="index !== questions.length - 1">
         </div>
-        <button type="submit" class="btn btn-primary">Save Passage</button>
+        <button type="submit" class="btn btn-primary m-2">Save Passage</button>
+        <button type="button" class="btn btn-danger m-2" v-if="updateForm" @click="deletePassage(passage._id)">Delete Passage</button>
       </form>
     </div>
   </template>
   
   <script>
-  import { reactive } from 'vue';
-  
+  import { reactive, onMounted, ref } from 'vue';
+  import { useRoute } from "vue-router";
+  import decode from "jwt-decode";
+  import bcrypt from "bcryptjs";
+
   export default {
     setup() {
-      const passage = reactive({
+
+      let updateForm = ref(false);
+      const path = ref("");
+      const router = useRoute();
+      
+
+    
+      const passage = ref({
         title: '',
         content: ''
       });
   
-      const questions = reactive([
+      const questions = ref([
         {
           text: '',
           options: ['', '', '', ''],
@@ -67,125 +83,223 @@
       ]);
 
       const addQuestion = () => {
-      questions.push({
+      questions.value.push({
         text: '',
         options: ['', '', '', ''],
         correctAnswer: ''
       });
     };
-  
-      const submitForm = () => {
-        // Here, you can send the passage and questions data to the backend for saving
+
+    const deleteQuestion = function(index) {
+      if (questions.value.length === 1) {
+        // If there is only one question, clear its fields instead of deleting it
+        questions.value[0] = {
+          text: '',
+          options: ['', '', '', ''],
+          correctAnswer: '',
+        };
+      } else {
+        // Delete the question from the questions array
+        questions.value.splice(index, 1);
+      }
+    }
+
+    onMounted(() => {
+      if (router.params.pid) {
+        console.log("yes")
+        updateForm.value = true;
+        fetchPage();
+      }
+      checkUserToken();
+      checkUserType();
+      getPath();
+    });
+
+
+    const checkUserToken = async function () {
+      const response = await fetch(`/api/users/check`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.status === 401) {
+        alert("session time out");
+        location.assign("/login");
+      } else if (response.status === 403) {
+        alert(response.statusText);
+        history.back();
+      }
+    };
+
+    const checkUserType = function () {
+      const token = decode(localStorage.getItem("token"));
+      if (token.role !== "admin") {
+        alert("you do not have the premisson to access this page");
+        history.back();
+      }
+    };
+
+
+    const fetchPage = async function () {
+      const response1 = await fetch(`/api/readings/get/${router.params.pid}`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+
+      const response2 = await fetch(`/api/readings/getquestions/${router.params.pid}`, {
+        headers: {
+          "x-access-token": `${localStorage.getItem("token")}`,
+        },
+      });
+      if (response1.ok && response2.ok) {
+
+        let data = await response1.json();
+        passage.value = data.passage;
         console.log(passage);
+
+        data = await response2.json();
+        questions.value = data.questions;
         console.log(questions);
-      };
+        
+        
+      } else {
+        if (response1.status === 401 || response2.status === 401) {
+          alert("session time out");
+          location.assign("/login");
+        } else if (response1.status === 403 || response2.status === 403) {
+          alert(response1.statusText + ' ' + response2.statusText);
+          history.back();
+        } else alert(response1.statusText + ' ' + response2.statusText);
+      }
+    };
 
-      const savePassage = async (passage) => {
-        try {
-            const response = await fetch(`/api/Reading/passages/save`, {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json",
-                "x-access-token": `${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(passage),
-            });
+    
 
-            if (response.status === 201) {
-            console.log("Passage saved successfully");
-            } else {
-            console.error("Error saving passage");
+    const getPath = function () {
+      let elements = router.path.split("/");
+      path.value = "/" + elements[1];
+      for (let i = 2; i < elements.length - 1; i++) {
+        path.value += "/" + elements[i];
+      }
+    };
+
+  
+      
+
+      
+
+        const submit = async function(event) {
+            event.preventDefault();
+            if (!updateForm.value) {        //create
+                // Insert Passage
+                const response1 = await fetch(`/api/readings/create`, {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": `${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(passage.value),
+                });
+
+                if (response1.ok) {
+                const passageId = await response1.json(); // Retrieve the created passage ID
+
+                // Bundle passageId in each question object
+                const questionsWithPid = questions.value.map(question => ({
+                    ...question,
+                    pid: passageId, // Assign the passageId as the pid for each question
+                }));
+
+                // Insert Questions with passageId
+                const response2 = await fetch(`/api/readings/createquestion`, {
+                    method: "post",
+                    headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": `${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify(questionsWithPid), // Send questions with pid included
+                });
+
+                if (response2.ok) {
+                    alert("New passage and questions created successfully");
+                    window.location.replace(path.value);
+                } else {
+                    alert("Error creating questions: " + response2.statusText);
+                }
+                } else {
+                alert("Error creating passage: " + response1.statusText);
+                }
+            } else {                                 //update
+                console.log(passage.value);
+                let id = passage.value._id;
+                delete passage.value._id;
+
+                const response1 = await fetch(`/api/readings/update/${router.params.pid}`, {
+                method: "put",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": `${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(passage.value),
+                });
+
+
+                const updatedQuestions = questions.value.map(({ _id, ...rest }) => rest); // remove all _id in all questions
+                const response2 = await fetch(`/api/readings/updatequestion/${router.params.pid}`, {
+                method: "put",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": `${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(updatedQuestions),
+                });
+
+                console.log(response1 + ' ' + response2);
+
+                if (response1.ok && response2.ok) 
+                {
+                    alert("update passage and questions sucessfully");
+                    window.location.replace(path.value);
+                } else {
+                    alert(response1.statusText + ' ' + response2.statusText);
+                }
             }
-        } catch (error) {
-            console.error("Error saving passage:", error);
-        }
+            };
+ 
+        const deletePassage = async function (id) {
+            if (confirm("Are you sure to delete this passage?")) {
+                const response = await fetch(`/api/readings/get/${id}/confirm/delete`, {
+                method: "delete",
+                body: JSON.stringify(passage.value),
+                headers: {
+                    "x-access-token": `${localStorage.getItem("token")}`,
+                },
+                });
+                if (response.ok) {
+                alert("Passage Deleted");
+                window.location.replace(path.value);
+                } else {
+                alert(response.statusText);
+                }
+            } else {
+                return;
+            }
         };
 
-        const deletePassage = async (passageId) => {
-        try {
-            const response = await fetch(`/api/Reading/passages/delete/${passageId}`, {
-            method: "delete",
-            headers: {
-                "x-access-token": `${localStorage.getItem("token")}`,
-            },
-            });
+        
 
-            if (response.ok) {
-            console.log("Passage deleted successfully");
-            } else {
-            console.error("Error deleting passage");
-            }
-        } catch (error) {
-            console.error("Error deleting passage:", error);
-        }
-        };
 
-        const saveQuestion = async (passageId, question) => {
-        try {
-            const response = await fetch(`/api/Reading/passages/${passageId}/questions/save`, {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json",
-                "x-access-token": `${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(question),
-            });
-
-            if (response.status === 201) {
-            console.log("Question saved successfully");
-            } else {
-            console.error("Error saving question");
-            }
-        } catch (error) {
-            console.error("Error saving question:", error);
-        }
-        };
-
-        const deleteQuestion = async (questionId) => {
-        try {
-            const response = await fetch(`/api/Reading/questions/delete/${questionId}`, {
-            method: "delete",
-            headers: {
-                "x-access-token": `${localStorage.getItem("token")}`,
-            },
-            });
-
-            if (response.ok) {
-            console.log("Question deleted successfully");
-            } else {
-            console.error("Error deleting question");
-            }
-        } catch (error) {
-            console.error("Error deleting question:", error);
-        }
-        };
-
-        const getPassages = async () => {
-        try {
-            const response = await fetch(`/api/Reading/passages`, {
-            headers: {
-                "x-access-token": `${localStorage.getItem("token")}`,
-            },
-            });
-
-            if (response.ok) {
-            const data = await response.json();
-            const passages = data.passages;
-            console.log(passages);
-            // Handle the fetched passages data as needed
-            } else {
-            console.error("Error fetching passages");
-            }
-        } catch (error) {
-            console.error("Error fetching passages:", error);
-        }
-        };
+        
   
       return {
         passage,
         questions,
         addQuestion,
-        submitForm
+        updateForm,
+        submit,
+        deletePassage,
+        deleteQuestion
       };
     }
   };

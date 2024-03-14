@@ -20,6 +20,7 @@ import HomeView from "@/views/HomeView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import SpeakingView from "@/views/SpeakingView.vue";
 import ModReadingView from "@/views/ModReadingView.vue";
+import ModReadingCardView from "@/views/ModReadingCardView.vue";
 
 const routes = [
   // Home
@@ -102,12 +103,22 @@ const routes = [
     ],
   },
 
-  // modReading
+  // ModReading
   {
     path: "/modreading",
     children: [
       {
         path: "",
+        component: ModReadingCardView,
+      },
+      {
+        path: "create",
+        name: "passage creation",
+        component: ModReadingView,
+      },
+      {
+        path: ":pid",
+        name: "passage modify",
         component: ModReadingView,
       },
     ],
