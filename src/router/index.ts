@@ -2,19 +2,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 import ChatForm from "@/views/ChatFormView.vue";
 import ChatsView from "@/views/ChatsView.vue";
-import StationForm from "@/views/StationsFormView.vue";
-import StationsView from "@/views/StationsView.vue";
 import UsersFormAdmin from "@/views/UsersFormAdminView.vue";
 import UsersFormSmView from "@/views/UsersFormStationMangerView.vue";
 import UsersAdminView from "@/views/UsersAdminView.vue";
 import UsersSmView from "@/views/UsersStationMangerView.vue";
-import VolunteersView from "@/views/VolunteersView.vue";
-import VolunteerForm from "@/views/VolunteersFormView.vue";
-import FlagbagsView from "@/views/FlagbagsView.vue";
-import FlagbagForm from "@/views/FlagbagsFormView.vue";
 import loginView from "@/views/LoginView.vue";
-import StationsFormView from "@/views/StationsFormView.vue";
-import ScanView from "@/views/ScanView.vue";
 import RegView from "@/views/RegView.vue";
 import HomeView from "@/views/HomeView.vue";
 import ProfileView from "@/views/ProfileView.vue";
@@ -164,26 +156,7 @@ const routes = [
     ],
   },
 
-  
-  
-  //flagbag
-  {
-    path: "/events/:eid/stations/:sid/volunteers/:vid/flagbags",
-    children: [
-      {
-        path: "",
-        component: FlagbagsView,
-      },
-      {
-        path: "create",
-        component: FlagbagForm,
-      },
-      {
-        path: ":fid",
-        component: FlagbagForm,
-      },
-    ],
-  },
+
 ];
 const router = createRouter({
   // eslint-disable-next-line no-undef

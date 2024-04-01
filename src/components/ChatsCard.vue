@@ -250,7 +250,7 @@ export default {
       }
 
       const url =
-        "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo-16k/chat/completions?api-version=2023-08-01-preview";
+        "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-15-preview";
       const headers = { "Content-Type": "application/json", "api-key": apiKey };
       console.log(JSON.stringify(conversation.value));
       const payload = { messages: conversation.value };
