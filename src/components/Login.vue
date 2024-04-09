@@ -1,15 +1,14 @@
 <template>
+
   <div class="Login">
-    <div
-      class="container d-flex align-items-center justify-content-center vh-100"
-    >
+    <div class="container d-flex align-items-center justify-content-center vh-100">
       <div class="row w-100 justify-content-center">
         <div class="col-sm-6">
           <img src="" class="img-fluid" />
           <form @submit.prevent="submit" class="form-group">
-            <legend>Login</legend>
+            <legend class ="fw-bold">Login</legend>
             <div class="">
-              <label for="exampleFormControlInput1" class="form-label"
+              <label for="exampleFormControlInput1" class="form-label fw-bold"
                 >Username：
               </label>
               <input
@@ -21,7 +20,7 @@
               />
             </div>
             <div class="">
-              <label for="exampleFormControlTextarea1" class="form-label"
+              <label for="exampleFormControlTextarea1" class="form-label fw-bold"
                 >Password：
               </label>
               <input
@@ -78,42 +77,14 @@ export default {
         alert("Login Successfully.");
         //  Decode token
         user = JwtDecode(localStorage.getItem("token"));
-
-        if (user.role === "admin") {
-          window.location.assign("/home");
-        } else if (user.role === "student") {
-          const data = await fetchStation();
-          let eid = "";
-          for (let i = 0; i < data.itemsWithoutPages.length; i++) {
-            eid = data.itemsWithoutPages[i].eid;
-          }
-          console.log(eid);
-          window.location.assign(`/home`);
-        }
+        window.location.assign("/home");
       } else {
         alert("Incorrect Username or Password");
         window.location.assign("/login");
       }
     };
 
-    const fetchStation = async function () {
-      const response = await fetch(`/api/stations/get`, {
-        method: "get",
-        headers: {
-          "x-access-token": localStorage.getItem("token"),
-          "content-type": "application/json",
-        },
-      });
-      let data = {};
-      if (response.ok) {
-        data = await response.json();
-        console.log(data);
-        return data;
-      } else {
-        alert(response.statusText);
-      }
-      return data;
-    };
+    
 
     return {
       credential,
@@ -127,4 +98,16 @@ export default {
 .form-group {
   width: 100%; /* Adjust the width as needed */
 }
+
+.Login
+{
+  max-width: none;
+  background-image: url('../assets/wallpaper.png'); /* Adjust the path as necessary */
+  background-repeat: repeat; /* The wallpaper pattern will not repeat */
+
+}
+
+
+
+
 </style>

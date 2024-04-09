@@ -14,42 +14,40 @@
     <div
       v-for="(item, index) in resultItems"
       :key="item._id"
-      class="card testimonial-card col-sm-5 flex"
-      style="padding: 0px"
+      class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch"
     >
-      <div class="card-up aqua-gradient" />
-      <div class="avatar mx-auto white">
-        <router-link
-          v-slot="{ navigate }"
-          :to="`/reading/${item._id}`"
-          custom
-        >
+      <div class="card testimonial-card w-100">
+        <div class="card-up aqua-gradient"></div>
+        <div class="avatar mx-auto white">
           <img
             src="../assets/bookIcon.png"
-            class="rounded-0 img-fluid"
-            alt="woman avatar"
-            @click="navigate"
+            class="rounded-circle img-fluid"
+            alt="Book icon"
           />
-        </router-link>
-      </div>
-      <div class="card-body text-center">
-        <h4 class="card-title font-weight-bold fs-5">
-          {{ item.title }}
-        </h4>
-        <hr/>
-        <p class = "fw-bold fs-3">Reading practice {{ index + 1 }}</p>
-
-        <div class="card-footer" v-if="item.score">
-          Your Score: {{ item.score}}
+        </div>
+        <div class="card-body text-center">
+          <!-- Reading Practice Index -->
+          <p class="fw-bold fs-3">Reading Practice {{ index + 1 }}</p>
+          <!-- Passage Title -->
+          <h4 class="card-title font-weight-bold fs-5">
+            {{ item.title }}
+          </h4>
+          <hr/>
+          <div class="card-footer" v-if="item.score">
+            Your Score: {{ item.score }}
+          </div>
+          <!-- Start Practice Button -->
+          <router-link :to="`/reading/${item._id}`" class="btn btn-primary btn-block mt-3">Start Practice</router-link>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="pagination-group row">
+  <!-- Pagination -->
+  <div class="pagination-group row justify-content-center">
     <nav aria-label="Page navigation example">
       <ul class="pagination">
-        <li class="page-item">
+        <li class="page-item" @click="previousPage">
           <a class="page-link" href="#" aria-label="Previous">
             <span aria-hidden="true">&laquo;</span>
           </a>
@@ -57,20 +55,20 @@
         <li
           v-for="i in pages.slice(currentFirstPage, currentLastPage)"
           :key="i"
-          class="page-item"
+          :class="['page-item', { active: currentPage === i }]"
         >
-          <a class="page-link" @click="fetchPage(i)">{{ i }}</a>
+          <a class="page-link" href="#" @click.prevent="fetchPage(i)">
+            {{ i }}
+          </a>
         </li>
-        <li class="page-item" @click="nextPage(i)">
-          <a class="page-link" aria-label="Next">
-            <span aria-hidden="false">&raquo;</span>
+        <li class="page-item" @click="nextPage">
+          <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
           </a>
         </li>
       </ul>
     </nav>
   </div>
-
-  
 </template>
 
 <script>
@@ -214,6 +212,11 @@ body {
 .aqua-gradient {
   background: linear-gradient(40deg, #2096ff, #05ffa3) !important;
 }
+
+.card-footer {
+  margin-top: 0;
+}
+
 
 .testimonial-card .avatar {
   width: 120px;

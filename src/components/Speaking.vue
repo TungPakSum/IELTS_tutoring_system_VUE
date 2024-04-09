@@ -144,12 +144,15 @@ export default {
 
 
     function Prompt() {
+      const prompt = `You role is a IELTS speaking examiner. give the user a real IELTS speaking exam. Ask one question each time only. 
+        After asking one question. After the user had answer your question, ask another questions that further expand on the user previous reponse.
+        Repeat the above step until all part had ended.`
       conversation.value.push({
         role: "system",
-        content: `You role is a IELTS speaking examiner. give the user a real IELTS speaking exam. Ask one question each time only. 
-        After asking one question. After the user had answer your question, ask another questions that further expand on the user previous reponse.
-        Repeat the above step until all part had ended.`,
+        content: prompt,
       });
+
+      saveMessage(prompt, "system");
     }
 
     function generateNewWritingTask() {
@@ -157,12 +160,14 @@ export default {
       sendMessage();
     }
 
-    function systemMessage() {
-      console.log(systemPrompt);
+    function PromptAfterSend() {
+      const prompt = `Keep acting as a IELTS speaking examiner. If the previous message is short, keep ask question that further expand on the user previous reponse. If the previous message is long enough, ask question about another topic`
       conversation.value.push({
         role: "system",
-        content: systemPrompt,
+        content: prompt,
       });
+
+      saveMessage(prompt, "system");
     }
 
     const checkUserToken = async function () {
@@ -250,15 +255,14 @@ export default {
         if (savedConversation) {
           conversation.value = savedConversation;
 
-          chatMessages.value = data.conversations.map((chat) => ({
+          chatMessages.value = data.conversations
+          .filter((chat) => chat.role !== "system") // Exclude "system" role chats
+          .map((chat) => ({
             content: chat.content,
-            isUser: chat.role === "user" ? true : false,
+            isUser: chat.role === "user",
           }));
         }
-      } else if (response.status === 404) {
-        firstPrompt();
-        sendMessage();
-      }
+      } 
     };
 
     const fetchCurrentUser = async function () {
@@ -286,14 +290,7 @@ export default {
         // Call ChatGPT API to get the bot's response
         // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
         conversation.value.push({ role: "user", content: message });
-        
-        if(chatMessages.length > 0)
-          {
-              conversation.value.push({
-              role: "system",
-              content: `Keep acting as a IELTS speaking examiner. Keep ask question. Do not give too lengthly responds to the user respond.`,
-            });
-          }
+        PromptAfterSend();
       }
 
       const url =
@@ -372,7 +369,7 @@ export default {
       fetchCurrentUser,
       getConversation,
       deleteMessage,
-      systemMessage,
+      PromptAfterSend,
       Prompt,
       generateNewWritingTask,
       checkUserToken,

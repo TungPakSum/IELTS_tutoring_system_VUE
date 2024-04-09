@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class>
     <Login />
   </div>
 </template>
@@ -17,3 +17,7 @@ export default {
   }
 }
 </script>
+
+<style>
+
+</style>

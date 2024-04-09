@@ -22,29 +22,52 @@
           :class="!visible ? 'collapse' : ''"
           class="navbar-collapse"
         >
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="navbar-brand" v-if="login && isAdmin">
-              <a class="nav-link" href="/admin">Admin Manager</a>
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="login && isAdmin">
+            <li class="navbar-brand" >
+              <router-link class="nav-link bi bi-people"
+                :class="{'text-white': isActiveUser}"
+                to="/student"
+              >
+                User Account Manager
+            </router-link>
             </li>
-            <li class="navbar-brand" v-if="login && isAdmin">
-              <a class="nav-link" href="/student">Student Manager</a>
-            </li>
-            <li class="navbar-brand" v-if="login && isAdmin">
-              <a class="nav-link" href="/modreading">Reading Passages Manager</a>
+            <li class="navbar-brand" >
+              <router-link class="nav-link bi bi-pen"
+                :class="{'text-white': isActiveModReading}"
+                to="/modreading"
+              >
+                Reading Materials Manager
+            </router-link>
             </li>
           </ul>
 
-          <!-- <ul
-            v-else
-            class="navbar-nav me-auto mb-2 mb-lg-0"
-          >
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="/login"
-              >登入</a>
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="login &&!isAdmin">
+            <li class="navbar-brand" >
+              <router-link class="nav-link bi bi-book"
+                :class="{'text-white': isActiveWriting}"
+                to="/writing"
+              >
+                Writing Practice
+            </router-link>
             </li>
-          </ul> -->
+            <li class="navbar-brand" >
+              <router-link class="nav-link bi bi-mic"
+                :class="{'text-white': isActiveSpeaking}"
+                to="/speaking"
+              >
+                Speaking Practice
+            </router-link>
+            </li>
+            <li class="navbar-brand" >
+              <router-link class="nav-link bi bi-pen"
+                :class="{'text-white': isActiveReading}"
+                to="/reading"
+              >
+                Reading Practice
+            </router-link>
+            </li>
+          </ul>
+
           <form class="d-flex align-items-center">
             <div>
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -71,26 +94,6 @@
                 @click="profile"
               />
             </div>
-            <!-- <router-link
-                          v-slot="{ navigate }"
-                          :to="{ path: '/login' }"
-                          custom
-                        > -->
-            <!-- <button
-                            v-if="!login"
-                            class="btn btn-outline-success"
-                            type="submit"
-                            @click="navigate"
-                          >
-                            登入
-                          </button> -->
-            <!-- <button
-                          v-if="login"
-                          class="btn btn-outline-success"
-                          type="submit"
-                          @click="logout"
-                        > -->
-            <!-- </button> -->
           </form>
         </div>
       </div>
@@ -102,7 +105,7 @@
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { onMounted, ref , computed } from "vue";
 import { useRoute } from "vue-router";
 import JwtDecode from "jwt-decode";
 
@@ -119,7 +122,28 @@ export default {
       checkUserToken();
       fetchPage();
     });
+    
+    const isActiveWriting = computed(() => {
+      return router.path === '/writing';
+    });
 
+    const isActiveSpeaking = computed(() => {
+      return router.path === '/speaking';
+    });
+
+    const isActiveReading = computed(() => {
+      return router.path === '/reading';
+    });
+
+    const isActiveModReading = computed(() => {
+      return router.path === '/modreading';
+    });
+
+    const isActiveUser = computed(() => {
+      return router.path === '/student';
+    });
+
+    
     const fetchPage = async function () {
       if (localStorage.getItem("token") !== null) {
         const decodedToken = JwtDecode(localStorage.getItem("token"));
@@ -164,6 +188,11 @@ export default {
       profile,
       checkUserToken,
       isAdmin,
+      isActiveWriting,
+      isActiveSpeaking,
+      isActiveReading,
+      isActiveModReading,
+      isActiveUser
     };
   },
 };
@@ -177,9 +206,11 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   z-index: 999;
 }
+
+
 
 /**/
 </style>

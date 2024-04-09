@@ -1,5 +1,5 @@
 <template>
-  <div class="Sign up">
+  <div class="Signup">
     <div
       class="container d-flex align-items-center justify-content-center vh-100"
     >
@@ -7,9 +7,9 @@
         <div class="col-sm-6">
           <img src="" class="img-fluid" style="margin-bottom: 20px" />
           <form @submit.prevent="submit">
-            <legend>Create an account</legend>
+            <legend class = "fw-bold">Create an account</legend>
             <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
+              <label for="exampleFormControlInput1" class="form-label fw-bold "
                 >Username：
               </label>
               <input
@@ -22,7 +22,7 @@
               />
             </div>
             <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
+              <label for="exampleFormControlInput1" class="form-label fw-bold"
                 >Email Address：
               </label>
               <input
@@ -35,7 +35,7 @@
               />
             </div>
             <div class="mb-3">
-              <label for="exampleFormControlTextarea1" class="form-label"
+              <label for="exampleFormControlTextarea1" class="form-label fw-bold"
                 >Password：
               </label>
               <input
@@ -152,3 +152,14 @@ export default {
   },
 };
 </script>
+
+
+<style>
+.Signup
+{
+  max-width: none;
+  background-image: url('../assets/wallpaper.png'); /* Adjust the path as necessary */
+  background-repeat: repeat; /* The wallpaper pattern will not repeat */
+
+}
+</style>

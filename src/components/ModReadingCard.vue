@@ -12,58 +12,35 @@
   </div>
   <div class="row">
     <div
-      v-for="item in resultItems"
-      :key="item"
-      class="card testimonial-card col-sm-5 flex"
-      style="padding: 0px"
+      v-for="(item, index) in resultItems"
+      :key="item._id"
+      class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch"
     >
-      <div class="card-up aqua-gradient" />
-      <div class="avatar mx-auto white">
-        <router-link
-          v-slot="{ navigate }"
-          :to="`/modreading/${item._id}`"
-          custom
-        >
+      <div class="card testimonial-card w-100">
+        <div class="card-up aqua-gradient"></div>
+        <div class="avatar mx-auto white">
           <img
             src="../assets/bookIcon.png"
-            class="rounded-0 img-fluid"
-            alt="woman avatar"
-            @click="navigate"
+            class="rounded-circle img-fluid"
+            alt="Book icon"
           />
-        </router-link>
-      </div>
-      <div class="card-body text-center">
-        <h4 class="card-title font-weight-bold fs-5">
-          {{ item.title }}
-        </h4>
-        <hr />
-        <p class = "fw-bold fs-3">Reading practice</p>
+        </div>
+        <div class="card-body text-center">
+          <!-- Reading Practice Index -->
+          <p class="fw-bold fs-3">Reading Material {{ index + 1 }}</p>
+          <!-- Passage Title -->
+          <h4 class="card-title font-weight-bold fs-5">
+            {{ item.title }}
+          </h4>
+          <hr/>
+          <div class="card-footer" v-if="item.score">
+            Your Score: {{ item.score }}
+          </div>
+          <!-- Start Practice Button -->
+          <router-link :to="`/modreading/${item._id}`" class="btn btn-primary btn-block mt-3">Modify Material</router-link>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="pagination-group row">
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li
-          v-for="i in pages.slice(currentFirstPage, currentLastPage)"
-          :key="i"
-          class="page-item"
-        >
-          <a class="page-link" @click="fetchPage(i)">{{ i }}</a>
-        </li>
-        <li class="page-item" @click="nextPage(i)">
-          <a class="page-link" aria-label="Next">
-            <span aria-hidden="false">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
   </div>
 
   <div class="row mt-3">

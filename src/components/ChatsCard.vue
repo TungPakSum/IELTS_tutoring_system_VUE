@@ -88,7 +88,7 @@ export default {
     const chatMessages = ref([]);
     const userMessage = ref("");
     const apiKey = `${process.env.VUE_APP_OPENAI_API_KEY}`;
-    const systemPrompt = `Give comment to the user's writing, Grammatical range and accuracy, Lexical resource, task response and Coherence and cohesion`;
+    
     //const basicUrl = (
     //  <a
     //    href="https://chatgpt.hkbu.edu.hk/general/rest"
@@ -103,26 +103,32 @@ export default {
     const conversation = ref([]);
     const user = ref();
 
-    function firstPrompt() {
+    function Prompt() {
+      const prompt = `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
+          Generate an IETLS writing task 2 and the requirement (word count)for the user to practice with
+          (Do not respond with the sentence Sure!I can ..., just generate the task right away)`
+
       conversation.value.push({
         role: "system",
-        content: `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
-          Generate an IETLS writing task 2 and the requirement (word count)for the user to practice with
-          (Do not respond with the sentence Sure!I can ..., just generate the task right away)`,
+        content: prompt
       });
+
+      saveMessage(prompt, "system");
     }
 
     function generateNewWritingTask() {
-      firstPrompt();
+      Prompt();
       sendMessage();
     }
 
-    function systemMessage() {
-      console.log(systemPrompt);
+    function PromptAfterSend() {
+      const prompt = `Check if the previous message is a piece of writing. If Yes, then check if the content of the writing align with the task you have given. If yes, give detail analysis to the user's writing as an IELTS English Tutor. Analysis base on Grammatical range and accuracy, Lexical resource, task response and Coherence and cohesion. Quote specify section in the writing for further explaination and suggest which part can improve. If the writing is out of scope, ask user to write again . If the message is not a writing, refuse the request and you should only answer english base question`;
       conversation.value.push({
         role: "system",
-        content: systemPrompt,
+        content: prompt,
       });
+
+      saveMessage(prompt, "system");
     }
 
     const checkUserToken = async function () {
@@ -210,14 +216,15 @@ export default {
         if (savedConversation) {
           conversation.value = savedConversation;
 
-          chatMessages.value = data.conversations.map((chat) => ({
+          chatMessages.value = data.conversations
+          .filter((chat) => chat.role !== "system") // Exclude "system" role chats
+          .map((chat) => ({
             content: chat.content,
-            isUser: chat.role === "user" ? true : false,
+            isUser: chat.role === "user",
           }));
         }
       } else if (response.status === 404) {
-        firstPrompt();
-        sendMessage();
+        generateNewWritingTask();
       }
     };
 
@@ -237,7 +244,6 @@ export default {
 
         // Add user message to chat
         chatMessages.value.push({
-          //id: Date.now(),
           content: message,
           isUser: true,
         });
@@ -246,7 +252,7 @@ export default {
         // Call ChatGPT API to get the bot's response
         // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
         conversation.value.push({ role: "user", content: message });
-        systemMessage();
+        PromptAfterSend();
       }
 
       const url =
@@ -262,7 +268,6 @@ export default {
           const botResponseWithLineBreaks = botResponse.replace(/\n/g, "\n\n");
 
           chatMessages.value.push({
-            //id: Date.now(),
             content: botResponseWithLineBreaks,
             isUser: false,
           });
@@ -306,8 +311,8 @@ export default {
       fetchCurrentUser,
       getConversation,
       deleteMessage,
-      systemMessage,
-      firstPrompt,
+      PromptAfterSend,
+      Prompt,
       generateNewWritingTask,
       checkUserToken,
     };
