@@ -111,10 +111,6 @@ export default {
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
-    let voices = [];
-    speechSynthesis.onvoiceschanged = () => {
-      voices = speechSynthesis.getVoices();
-    };
 
     const startSpeechToText = () => {
       isRecording.value = true;
@@ -289,96 +285,89 @@ export default {
     };
 
     const sendMessage = async (event) => {
-  // Define utterance outside of the loop
-  let utterance = new SpeechSynthesisUtterance();
-  utterance.lang = "en-UK"; // Set the language
+      if (userMessage.value) {
+        saveMessage(userMessage.value, "user");
 
-  // This function ensures that the voices are loaded
-  const getVoices = () => {
-    return new Promise((resolve) => {
-      let voices = speechSynthesis.getVoices();
-      if (voices.length > 0) {
-        resolve(voices);
-      } else {
-        speechSynthesis.onvoiceschanged = () => {
-          voices = speechSynthesis.getVoices();
-          resolve(voices);
-        };
+        const message = userMessage.value;
+
+        // Add user message to chat
+        chatMessages.value.push({
+          //id: Date.now(),
+          content: message,
+          isUser: true,
+        });
+
+        userMessage.value = "";
+        // Call ChatGPT API to get the bot's response
+        // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
+        conversation.value.push({ role: "user", content: message });
+        PromptAfterSend();
       }
-    });
-  };
 
-  if (userMessage.value) {
-    saveMessage(userMessage.value, "user");
-    const message = userMessage.value;
-    chatMessages.value.push({
-      content: message,
-      isUser: true,
-    });
+      const url =
+        "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-15-preview";
+      const headers = { "Content-Type": "application/json", "api-key": apiKey };
+      //console.log(JSON.stringify(conversation.value));
+      const payload = { messages: conversation.value };
 
-    userMessage.value = "";
-    conversation.value.push({ role: "user", content: message });
-    PromptAfterSend();
-  }
+      try {
+        const response = await axios.post(url, payload, { headers });
+        if (response.status === 200) {
+          const botResponse = response.data.choices[0].message.content;
+          const botResponseWithLineBreaks = botResponse.replace(/\n/g, "\n\n");
 
-  const url = "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-15-preview";
-  const headers = { "Content-Type": "application/json", "api-key": apiKey };
-  const payload = { messages: conversation.value };
+          chatMessages.value.push({
+            //id: Date.now(),
+            content: botResponseWithLineBreaks,
+            isUser: false,
+          });
 
-  try {
-    const response = await axios.post(url, payload, { headers });
-    if (response.status === 200) {
-      const botResponse = response.data.choices[0].message.content;
-      chatMessages.value.push({
-        content: botResponse,
-        isUser: false,
-      });
+          // Save bot response to the backend
+          saveMessage(response.data.choices[0].message.content, "assistant");
 
-      saveMessage(botResponse, "assistant");
-      conversation.value.push(response.data.choices[0].message);
+          conversation.value.push(response.data.choices[0].message);
 
-      const sentences = botResponse.split("\n");
-      const delay = 1000; // Delay between playing each sentence in milliseconds
+          const sentences =
+          response.data.choices[0].message.content.split("/n "); // Split the completion into sentences
+          const delay = 2000; // Delay between playing each sentence in milliseconds
 
-      // Wait for the voices to be loaded
-      const voices = await getVoices();
-      utterance.voice = voices.find((voice) => voice.lang === utterance.lang) || voices[1];
+          for (const sentence of sentences) {
+            utterance.text = sentence.trim();
+            utterance.lang = "en-UK";
+            const voices = speechSynthesis.getVoices();
+            utterance.voice = voices[1];
+            
 
-      for (const sentence of sentences) {
-        utterance.text = sentence.trim();
+            // Play the sentence
+            speechSynthesis.speak(utterance);
 
-        // Play the sentence
-        speechSynthesis.speak(utterance);
+            // Wait for the sentence to finish before playing the next one
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
 
-        // Wait for the sentence to finish before playing the next one
-        await new Promise((resolve) => {
-          utterance.onend = resolve;
-          setTimeout(resolve, delay);
+          return response.data;
+        } else {
+          console.error("Error:", error);
+          chatMessages.value.push({
+            id: Date.now(),
+            content: "Unable to connect",
+            isUser: false,
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        chatMessages.value.push({
+          id: Date.now(),
+          content: "Unable to connect",
+          isUser: false,
         });
       }
-
-      return response.data;
-    } else {
-      console.error("Error with status:", response.status);
-      chatMessages.value.push({
-        content: "Unable to connect",
-        isUser: false,
-      });
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    chatMessages.value.push({
-      content: "Unable to connect",
-      isUser: false,
-    });
-  }
-};
+    };
 
     onMounted(() => {
       checkUserToken();
       fetchCurrentUser();
       getConversation();
-      
     });
 
     return {
