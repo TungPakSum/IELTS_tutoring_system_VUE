@@ -104,13 +104,17 @@ export default {
     //const apiVersion = "2023-08-01-preview";
     const conversation = ref([]);
     const user = ref();
-
+    let count = 0;
     const isRecording = ref(false);
     const recognition = new webkitSpeechRecognition();
     const utterance = new SpeechSynthesisUtterance();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
+    let voices = [];
+    speechSynthesis.onvoiceschanged = () => {
+      voices = speechSynthesis.getVoices();
+    };
 
     const startSpeechToText = () => {
       isRecording.value = true;
@@ -161,13 +165,24 @@ export default {
     }
 
     function PromptAfterSend() {
-      const prompt = `Keep acting as a IELTS speaking examiner. If the previous message is short, keep ask question that further expand on the user previous reponse. If the previous message is long enough, ask question about another topic`
+      let prompt;
+
+      if(count < 2)
+      {
+        prompt = `Keep acting as a IELTS speaking examiner. Keep ask question that further expand on the user previous reponse.`
+        count ++;
+      }else if(count >= 2)
+      {
+        prompt = `Keep acting as a IELTS speaking examiner. Ask question about another topic`
+        count = 0;
+      }
       conversation.value.push({
         role: "system",
         content: prompt,
       });
 
       saveMessage(prompt, "system");
+      console.log(count)
     }
 
     const checkUserToken = async function () {
@@ -274,89 +289,96 @@ export default {
     };
 
     const sendMessage = async (event) => {
-      if (userMessage.value) {
-        saveMessage(userMessage.value, "user");
+  // Define utterance outside of the loop
+  let utterance = new SpeechSynthesisUtterance();
+  utterance.lang = "en-UK"; // Set the language
 
-        const message = userMessage.value;
-
-        // Add user message to chat
-        chatMessages.value.push({
-          //id: Date.now(),
-          content: message,
-          isUser: true,
-        });
-
-        userMessage.value = "";
-        // Call ChatGPT API to get the bot's response
-        // Replace 'YOUR_CHATGPT_API_ENDPOINT' with the actual API endpoint
-        conversation.value.push({ role: "user", content: message });
-        PromptAfterSend();
+  // This function ensures that the voices are loaded
+  const getVoices = () => {
+    return new Promise((resolve) => {
+      let voices = speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        resolve(voices);
+      } else {
+        speechSynthesis.onvoiceschanged = () => {
+          voices = speechSynthesis.getVoices();
+          resolve(voices);
+        };
       }
+    });
+  };
 
-      const url =
-        "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-15-preview";
-      const headers = { "Content-Type": "application/json", "api-key": apiKey };
-      //console.log(JSON.stringify(conversation.value));
-      const payload = { messages: conversation.value };
+  if (userMessage.value) {
+    saveMessage(userMessage.value, "user");
+    const message = userMessage.value;
+    chatMessages.value.push({
+      content: message,
+      isUser: true,
+    });
 
-      try {
-        const response = await axios.post(url, payload, { headers });
-        if (response.status === 200) {
-          const botResponse = response.data.choices[0].message.content;
-          const botResponseWithLineBreaks = botResponse.replace(/\n/g, "\n\n");
+    userMessage.value = "";
+    conversation.value.push({ role: "user", content: message });
+    PromptAfterSend();
+  }
 
-          chatMessages.value.push({
-            //id: Date.now(),
-            content: botResponseWithLineBreaks,
-            isUser: false,
-          });
+  const url = "https://chatgpt.hkbu.edu.hk/general/rest/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-15-preview";
+  const headers = { "Content-Type": "application/json", "api-key": apiKey };
+  const payload = { messages: conversation.value };
 
-          // Save bot response to the backend
-          saveMessage(response.data.choices[0].message.content, "assistant");
+  try {
+    const response = await axios.post(url, payload, { headers });
+    if (response.status === 200) {
+      const botResponse = response.data.choices[0].message.content;
+      chatMessages.value.push({
+        content: botResponse,
+        isUser: false,
+      });
 
-          conversation.value.push(response.data.choices[0].message);
+      saveMessage(botResponse, "assistant");
+      conversation.value.push(response.data.choices[0].message);
 
-          const sentences =
-            response.data.choices[0].message.content.split("/n "); // Split the completion into sentences
-          const delay = 2000; // Delay between playing each sentence in milliseconds
+      const sentences = botResponse.split("\n");
+      const delay = 1000; // Delay between playing each sentence in milliseconds
 
-          for (const sentence of sentences) {
-            utterance.text = sentence.trim();
-            utterance.lang = "en-UK";
-            const voices = speechSynthesis.getVoices();
-            utterance.voice = voices[1];
-            
+      // Wait for the voices to be loaded
+      const voices = await getVoices();
+      utterance.voice = voices.find((voice) => voice.lang === utterance.lang) || voices[1];
 
-            // Play the sentence
-            speechSynthesis.speak(utterance);
+      for (const sentence of sentences) {
+        utterance.text = sentence.trim();
 
-            // Wait for the sentence to finish before playing the next one
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          }
+        // Play the sentence
+        speechSynthesis.speak(utterance);
 
-          return response.data;
-        } else {
-          console.error("Error:", error);
-          chatMessages.value.push({
-            id: Date.now(),
-            content: "Unable to connect",
-            isUser: false,
-          });
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        chatMessages.value.push({
-          id: Date.now(),
-          content: "Unable to connect",
-          isUser: false,
+        // Wait for the sentence to finish before playing the next one
+        await new Promise((resolve) => {
+          utterance.onend = resolve;
+          setTimeout(resolve, delay);
         });
       }
-    };
+
+      return response.data;
+    } else {
+      console.error("Error with status:", response.status);
+      chatMessages.value.push({
+        content: "Unable to connect",
+        isUser: false,
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    chatMessages.value.push({
+      content: "Unable to connect",
+      isUser: false,
+    });
+  }
+};
 
     onMounted(() => {
       checkUserToken();
       fetchCurrentUser();
       getConversation();
+      
     });
 
     return {

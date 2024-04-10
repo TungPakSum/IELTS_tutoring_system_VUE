@@ -55,7 +55,7 @@
             </div>
             <div class="col-auto">
               <button
-                @click="sendMessage"
+                @click="sendMessage()"
                 class="btn bi-send btn-lg"
                 :disabled="userMessage.trim() === ''"
               >
@@ -103,7 +103,7 @@ export default {
     const conversation = ref([]);
     const user = ref();
 
-    function Prompt() {
+    async function Prompt() {
       const prompt = `You role is a IELTS english tutor, you should only answer topic related to english or IELTS, refuse to answer other irrelatant questions
           Generate an IETLS writing task 2 and the requirement (word count)for the user to practice with
           (Do not respond with the sentence Sure!I can ..., just generate the task right away)`
@@ -113,16 +113,22 @@ export default {
         content: prompt
       });
 
-      saveMessage(prompt, "system");
+      await saveMessage(prompt, "system");
     }
 
-    function generateNewWritingTask() {
-      Prompt();
-      sendMessage();
+    async function generateNewWritingTask() {
+        try {
+          await Prompt();
+          await sendMessage(true);
+        } catch (error) {
+          console.error('Error generating new writing task:', error);
+          
+        }
     }
+    
 
-    function PromptAfterSend() {
-      const prompt = `Check if the previous message is a piece of writing. If Yes, then check if the content of the writing align with the task you have given. If yes, give detail analysis to the user's writing as an IELTS English Tutor. Analysis base on Grammatical range and accuracy, Lexical resource, task response and Coherence and cohesion. Quote specify section in the writing for further explaination and suggest which part can improve. If the writing is out of scope, ask user to write again . If the message is not a writing, refuse the request and you should only answer english base question`;
+    async function PromptAfterSend() {
+      const prompt = `Check if the user's message align with the task you have given. If yes, give detail analysis to the user's writing as an IELTS English Tutor. Analysis base on Grammatical range and accuracy, Lexical resource, task response and Coherence and cohesion. Quote specify section in the writing for further explaination and suggest which part can improve. If the user's message is out of scope, ask user to write again . If the message is not related to english, refuse the request and you should only answer english base question`;
       conversation.value.push({
         role: "system",
         content: prompt,
@@ -236,8 +242,9 @@ export default {
       }
     };
 
-    const sendMessage = async (event) => {
-      if (userMessage.value) {
+    const sendMessage = async (skipUserMessage = false) => {
+      if (!skipUserMessage) {
+
         saveMessage(userMessage.value, "user");
 
         const message = userMessage.value;
