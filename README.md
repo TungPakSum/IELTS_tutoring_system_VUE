@@ -1,4 +1,4 @@
-# tutor
+# IELTS tutoring system Frontend
 
 ## Project setup
 ```
